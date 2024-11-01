@@ -1,10 +1,10 @@
-export type User = {
+export interface User {
     username: string;
     role: string;
     password: string;
 }
 
-export type Message = {
+export interface Message {
     id?: number;
     content: string;
     deleted: boolean;
