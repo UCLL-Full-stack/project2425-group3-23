@@ -5,7 +5,7 @@ import {User} from "../model/user";
 const messages : Message[] = [
     new Message({
         id: 1,
-        content: 'Hello, world! (ps. is wel een standaard codelijn voor ons)',
+        content: 'Hello, world! 🤖',
         deleted: false,
         sender: new User({
             username: 'Yorick',
