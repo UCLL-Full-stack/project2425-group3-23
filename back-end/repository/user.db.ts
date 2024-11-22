@@ -1,44 +1,27 @@
 import {User} from "../model/user";
-import {Message} from "../model/message";
+import database from "./database";
 
-// This is currently a dummy database for users!
-const users = [
-    new User({
-        username: 'Yorick',
-        role: 'user',
-        password: 'password01',
-    }),
-    new User({
-        username: 'Sofie',
-        role: 'user',
-        password: 'password01',
-    }),
-];
-
-const getAllUsers = () : User[] => {
-    return users;
-}
-
-const getUserByUsername = ({ username }: { username: string }) : User | undefined => {
-    return users.find((user: User) => user.getUsername() === username);
-}
-
-const addMessageToUser = ({ username, message }: { username: string, message: Message }) : void => {
-    const user : User | undefined = getUserByUsername({ username });
-
-    if (!user) {
-        throw new Error('User not found.');
-    } else if (message.getSender() == null) {
-        throw new Error('Message must have a sender.');
-    } else if (message.getSender().getUsername() != username) {
-        throw new Error('Message sender must be the user.');
+const getAllUsers = async () : Promise<User[]> => {
+    try {
+        const usersPrisma = await database.user.findMany({ include: { messages: true } });
+        return usersPrisma.map((user : any) => User.from(user));
+    } catch (error) {
+        console.log(error);
+        throw new Error('Database error. See server logs for details.');
     }
+}
 
-    user.addMessage(message);
+const getUserByUsername = async ({ username }: { username: string }) : Promise<User | undefined> => {
+    try {
+        const userPrisma = await database.user.findUnique({ where: { username }, include: { messages: true } });
+        return userPrisma ? User.from(userPrisma) : undefined;
+    } catch (error) {
+        console.log(error);
+        throw new Error('Database error. See server logs for details.');
+    }
 }
 
 export default {
     getAllUsers,
-    getUserByUsername,
-    addMessageToUser,
+    getUserByUsername
 }

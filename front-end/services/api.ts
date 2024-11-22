@@ -1,6 +1,6 @@
 import { Message, User } from '../types';
 
-const API_URL = 'http://localhost:3000'; 
+const API_URL = 'http://localhost:3000'; // Sofie...
 
 export const getMessages = async (): Promise<Message[]> => {
     try {

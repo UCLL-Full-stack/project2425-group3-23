@@ -1,44 +1,60 @@
 import {Message} from "../model/message";
-import {User} from "../model/user";
+import database from "./database";
 
-// This is currently a dummy database for messages!
-const messages : Message[] = [
-    new Message({
-        id: 1,
-        content: 'Hello, world! 🤖',
-        deleted: false,
-        sender: new User({
-            username: 'Yorick',
-            role: 'user',
-            password: 'password01',
-        })
-    }),
-    new Message({
-        id: 2,
-        content: 'Hi, Yorick! 😅',
-        deleted: false,
-        sender: new User({
-            username: 'Sofie',
-            role: 'user',
-            password: 'password01',
-        })
-    })
-];
-
-const getAllMessages = () : Message[] => {
-    return messages;
-}
-
-const getMessageById = ({ id }: { id: number }) : Message | undefined => {
-    return messages.find((message: Message) => message.getId() === id);
-}
-
-const addMessage = ({ message }: { message: Message }) : void => {
-    if (message.getSender() == null) {
-        throw new Error('Message must have a sender.');
+const getAllMessages = async () : Promise<Message[]> => {
+    try {
+        const messagesPrisma = await database.message.findMany({ include: { sender: true, chat: true } });
+        return messagesPrisma.map((message : any) => Message.from(message));
+    } catch (error) {
+        console.log(error);
+        throw new Error('Database error. See server logs for details.');
     }
+}
 
-    messages.push(message);
+const getMessageById = async (id : number) : Promise<Message | undefined> => {
+    try {
+        const messagePrisma = await database.message.findUnique({
+            where: {
+                id: id
+            },
+            include: { sender: true, chat: true }
+        });
+        if (!messagePrisma) {
+            return undefined;
+        }
+
+        return Message.from(messagePrisma);
+    } catch (error) {
+        console.log(error);
+        throw new Error('Database error. See server logs for details.')
+    }
+}
+
+const addMessage = async ({ message }: { message: Message }) : Promise<Message> => {
+    try {
+        let createdMessagePrisma = await database.message.create({
+            data: {
+                content: message.getContent(),
+                deleted: message.getDeleted(),
+                sender: {
+                    connect: {
+                        username: message.getSender().getUsername()
+                    }
+                },
+                chat: {
+                    connect: {
+                        id: message.getChat().getId()
+                    }
+                }
+            },
+            include: { sender: true, chat: true }
+        });
+
+        return Message.from(createdMessagePrisma);
+    } catch (error) {
+        console.log(error);
+        throw new Error('Database error. See server logs for details.');
+    }
 }
 
 export default {
