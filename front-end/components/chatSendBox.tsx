@@ -1,10 +1,8 @@
-import { useRouter } from 'next/router';
-import React, { useState } from 'react';
-import { createMessage } from '@/services/api';
+import React, {useState} from 'react';
+import {createMessage} from '@/services/api';
 import {Box, Button, MenuItem, Select, TextField} from "@mui/material";
 
 const ChatSendBox: React.FC = () => {
-    const router = useRouter();
     const [content, setContent] = useState<string>('');
 
     return (
@@ -16,17 +14,15 @@ const ChatSendBox: React.FC = () => {
                 const senderSelect = form.sender as HTMLSelectElement;
                 const sender = senderSelect.value;
 
-                // Send the message
                 createMessage(content, sender)
                     .then(() => {
-                        // Reload the page
-                        router.reload(); // CHANGE THIS LATER!!!
+                        setContent('');
                     })
                     .catch((error) => {
                         console.error('Failed to send message:', error);
                     });
             }}>
-                <Select name="sender" sx={{ minWidth: '100px' }}>
+                <Select name="sender" sx={{ minWidth: '100px' }} defaultValue="Sofie">
                     <MenuItem value="Sofie">Sofie</MenuItem>
                     <MenuItem value="Yorick">Yorick</MenuItem>
                 </Select>

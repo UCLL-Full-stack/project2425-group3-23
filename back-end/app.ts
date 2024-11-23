@@ -6,8 +6,10 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import {messageRouter} from "./controller/message.routes";
 import {userRouter} from "./controller/user.routes";
+import expressWs from "express-ws";
+import WebsocketService from "./service/websocket.service";
 
-const app = express();
+const app = expressWs(express()).app;
 dotenv.config();
 const port = process.env.APP_PORT || 3000;
 
@@ -40,6 +42,15 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     } else {
         res.status(400).json({ status: 'application error', message: err.message });
     }
+});
+
+// Message server-to-client WebSocket functionality
+app.ws('/ws', (ws) => {
+    WebsocketService.addClient(ws);
+
+    ws.on('close', () => {
+        WebsocketService.removeClient(ws);
+    });
 });
 
 app.listen(port || 3000, () => {

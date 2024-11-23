@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import { Message } from '../types';
+import { Message } from '@/types';
 import ChatWindow from '../components/chatWindow';
-import ChatSendBox from '../components/chatSendBox';
-import { getMessages } from '../services/api';
+import { getMessages } from '@/services/api';
 import {Box, Typography} from "@mui/material";
+import MessageWebSocket from "@/services/messageWebSocket";
 
 const Home: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
@@ -16,6 +16,9 @@ const Home: React.FC = () => {
         };
 
         fetchMessages();
+
+        // WebSocket functionality
+        MessageWebSocket.getInstance(messages, setMessages);
     }, []);
 
     return (

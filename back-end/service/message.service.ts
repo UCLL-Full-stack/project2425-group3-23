@@ -5,6 +5,7 @@ import messageDb from "../repository/message.db";
 import {User} from "../model/user";
 import {MessageCreateInput} from "../types";
 import {Chat} from "../model/chat";
+import WebsocketService from "./websocket.service";
 
 const getAllMessages = async () => {
     return messageDb.getAllMessages();
@@ -32,7 +33,10 @@ const createMessage = async (messageInput: MessageCreateInput) : Promise<Message
 
     const chat : Chat = await chatDb.getPublicChat(); // Later change this!
     const message : Message = new Message({ content: messageInput.content, deleted: false, sender, chat });
-    return await messageDb.addMessage({ message });
+
+    const savedMessage : Message = await messageDb.addMessage({ message });
+    WebsocketService.broadcast(JSON.stringify(savedMessage));
+    return savedMessage;
 }
 
 export default {
