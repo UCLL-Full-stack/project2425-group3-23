@@ -10,8 +10,13 @@ const ChatSendBox: React.FC = () => {
         <>
             <form onSubmit={(event) => {
                 event.preventDefault();
+
+                const form = event.target as HTMLFormElement;
+                const senderSelect = form.sender as HTMLSelectElement;
+                const sender = senderSelect.value;
+
                 // Send the message
-                createMessage(content, 'Yorick')
+                createMessage(content, sender)
                     .then(() => {
                         // Clear the input field
                         setContent('');
@@ -20,6 +25,10 @@ const ChatSendBox: React.FC = () => {
                         console.error('Failed to send message:', error);
                     });
             }}>
+                <select name="sender">
+                    <option value="Sofie">Sofie</option>
+                    <option value="Yorick">Yorick</option>
+                </select>
                 <input
                     type="text"
                     placeholder="Type a message..."
