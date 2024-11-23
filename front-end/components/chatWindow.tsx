@@ -1,5 +1,8 @@
 import React from 'react';
 import { Message } from '../types';
+import {Avatar, List, ListItem, ListItemText, Typography} from "@mui/material";
+import {Box} from "@mui/system";
+import ChatSendBox from "@/components/chatSendBox";
 
 interface ChatWindowProps {
     messages: Message[];
@@ -7,71 +10,35 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
     return (
-        <div style={styles.chatContainer}>
-            {messages.map((message) => (
-                <div key={message.id} style={styles.messageContainer}>
-                    <div style={styles.avatar}>
-                        {message.sender.username[0].toUpperCase()}
-                    </div>
-                    <div style={styles.messageContent}>
-                        <p style={styles.username}>{message.sender.username}</p>
-                        <div style={styles.bubble}>
-                            <p style={styles.content}>{message.content}</p>
-                        </div>
-                    </div>
-                </div>
+        <Box sx={{ width: '50%', minWidth: '400px', maxWidth: '800px', m: '0 auto', p: '1em', bgcolor: '#F3F3F3', borderRadius: '1em' }}>
+            <List>
+            {messages.map((message : Message, index) => (
+                <ListItem key={ index }>
+                    {message.sender.username == "Sofie" &&
+                        <>
+                            <Avatar sx={{bgcolor: '#3399FF', mr: '0.5em'}}>
+                                {message.sender.username[0].toUpperCase()}
+                            </Avatar><ListItemText sx={{bgcolor: '#FFFFFF', p: '1em', borderRadius: '0.5em'}}>
+                                {message.content}
+                            </ListItemText>
+                        </>
+                    }
+                    {message.sender.username == "Yorick" &&
+                        <>
+                            <ListItemText sx={{bgcolor: '#FFFFFF', p: '1em', borderRadius: '0.5em'}}>
+                                {message.content}
+                            </ListItemText>
+                            <Avatar sx={{bgcolor: '#FF9933', ml: '0.5em'}}>
+                                {message.sender.username[0].toUpperCase()}
+                            </Avatar>
+                        </>
+                    }
+                </ListItem>
             ))}
-        </div>
+            </List>
+            <ChatSendBox></ChatSendBox>
+        </Box>
     );
-};
-
-const styles = {
-    chatContainer: {
-        maxWidth: '600px',
-        margin: '0 auto',
-        padding: '20px',
-        backgroundColor: '#f3f3f3',
-        borderRadius: '8px',
-    },
-    messageContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '15px',
-    },
-    avatar: {
-        width: '40px',
-        height: '40px',
-        borderRadius: '50%',
-        backgroundColor: '#0070f3',
-        color: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '1.2em',
-        fontWeight: 'bold',
-        marginRight: '10px',
-    },
-    messageContent: {
-        display: 'flex',
-        flexDirection: 'column' as 'column',
-    },
-    username: {
-        fontWeight: 'bold',
-        marginBottom: '5px',
-        fontSize: '0.9em',
-        color: '#333',
-    },
-    bubble: {
-        backgroundColor: '#e0e0e0',
-        borderRadius: '12px',
-        padding: '10px',
-        maxWidth: '80%',
-    },
-    content: {
-        margin: 0,
-        fontSize: '1em',
-        color: '#333',
-    },
 };
 
 export default ChatWindow;

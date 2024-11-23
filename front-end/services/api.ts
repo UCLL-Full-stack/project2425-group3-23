@@ -22,6 +22,13 @@ export const createMessage = async (
     senderUsername: string
 ): Promise<Message> => {
     try {
+        if (!content) {
+            throw new Error('Content is required');
+        }
+        if (!senderUsername) {
+            throw new Error('Sender is required');
+        }
+
         const response = await fetch(`${API_URL}/messages`, {
             method: 'POST',
             headers: {

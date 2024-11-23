@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { createMessage } from '../services/api';
+import React, { useState } from 'react';
+import { createMessage } from '@/services/api';
+import {Box, Button, MenuItem, Select, TextField} from "@mui/material";
 
 const ChatSendBox: React.FC = () => {
     const router = useRouter();
@@ -8,7 +9,7 @@ const ChatSendBox: React.FC = () => {
 
     return (
         <>
-            <form onSubmit={(event) => {         
+            <Box component="form" sx={{ display: 'flex', alignItems: 'center', gap: '0.5em' }} onSubmit={(event) => {
                 event.preventDefault();
 
                 const form = event.target as HTMLFormElement;
@@ -18,31 +19,32 @@ const ChatSendBox: React.FC = () => {
                 // Send the message
                 createMessage(content, sender)
                     .then(() => {
-                        // Clear the input field
-                        setContent('');
+                        // Reload the page
+                        router.reload(); // CHANGE THIS LATER!!!
                     })
                     .catch((error) => {
                         console.error('Failed to send message:', error);
                     });
             }}>
-                <select name="sender">
-                    <option value="Sofie">Sofie</option>
-                    <option value="Yorick">Yorick</option>
-                </select>
-                <input
-                    type="text"
+                <Select name="sender" sx={{ minWidth: '100px' }}>
+                    <MenuItem value="Sofie">Sofie</MenuItem>
+                    <MenuItem value="Yorick">Yorick</MenuItem>
+                </Select>
+                <TextField
+                    sx={{ flexGrow: 1 }}
                     placeholder="Type a message..."
                     value={content}
                     onChange={(event) => setContent(event.target.value)}
                     className="flex-1 bg-[#2c2f33] text-white placeholder-gray-500 p-3 rounded-lg outline-none border border-[#3a3f45] focus:border-[#7289da]"
                 />
-                <button
+                <Button
+                    variant="contained"
                     type="submit"
-                    className="bg-[#7289da] text-white px-4 py-2 rounded-lg hover:bg-[#5b6eae]"
+                    sx={{ flexShrink: 0, height: '4em' }}
                 >
                     Send
-                </button>
-            </form>
+                </Button>
+            </Box>
         </>
     );
 }
