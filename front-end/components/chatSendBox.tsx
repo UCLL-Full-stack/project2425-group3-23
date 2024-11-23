@@ -8,7 +8,7 @@ const ChatSendBox: React.FC = () => {
 
     return (
         <>
-            <form onSubmit={(event) => {
+            <form onSubmit={(event) => {         
                 event.preventDefault();
                 // Send the message
                 createMessage(content, 'Yorick')
@@ -19,15 +19,17 @@ const ChatSendBox: React.FC = () => {
                     .catch((error) => {
                         console.error('Failed to send message:', error);
                     });
-            }}>
+            }}className="bg-[#23272a] p-4 flex items-center gap-2 border-t border-[#2c2f33]">
                 <input
                     type="text"
                     placeholder="Type a message..."
                     value={content}
                     onChange={(event) => setContent(event.target.value)}
+                    className="flex-1 bg-[#2c2f33] text-white placeholder-gray-500 p-3 rounded-lg outline-none border border-[#3a3f45] focus:border-[#7289da]"
                 />
                 <button
                     type="submit"
+                    className="bg-[#7289da] text-white px-4 py-2 rounded-lg hover:bg-[#5b6eae]"
                 >
                     Send
                 </button>

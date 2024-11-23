@@ -18,11 +18,11 @@ const Home: React.FC = () => {
     }, []);
 
     return (
-        <div>
+        <div className="min-h-screen bg-[#23272a] text-white flex flex-col">
             <Head>
                 <title>Public Chat</title>
             </Head>
-            <main>
+            <main className="flex-1 flex flex-col justify-between max-w-4xl mx-auto">
                 <h1>Welcome to the Public Chat</h1>
                 <ChatWindow messages={messages} />
                 <ChatSendBox />

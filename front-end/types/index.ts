@@ -10,3 +10,9 @@ export interface Message {
     deleted: boolean;
     sender: User;
 }
+export type ChatMessage = {
+    id: number;
+    username: string;
+    message: string;
+    timestamp: string;
+  };
