@@ -11,19 +11,9 @@ const getFriendRequestById = async (id: number) : Promise<FriendRequest | undefi
 }
 
 const sendFriendRequest = async (senderUsername: string, receiverUsername: string) : Promise<void> => {
-    const existingFriendRequest = await friendRequestDb.getFriendRequestByUsernames({senderUsername, receiverUsername});
-    if (existingFriendRequest) {
-        const sender = await UserService.getUserByUsername(senderUsername);
-        if (!sender) {
-            throw new Error("Sender not found");
-        }
-
-        if (sender.getFriends().find(friend => friend.getUsername() == receiverUsername)) {
-            throw new Error("Users are already friends"); // Users are already friends
-        }
-        if (existingFriendRequest.getStatus() == "pending") {
-            throw new Error("Friend request already sent"); // Friend request already sent
-        }
+    const existingFriendRequests = await friendRequestDb.getFriendRequestsByUsernames({senderUsername, receiverUsername});
+    if (existingFriendRequests && existingFriendRequests.map(friendRequest => friendRequest.getStatus()).includes("pending")) {
+        throw new Error("Friend request already pending");
     }
 
     await friendRequestDb.createFriendRequest({senderUsername, receiverUsername});

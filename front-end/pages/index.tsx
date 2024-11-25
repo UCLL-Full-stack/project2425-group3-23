@@ -1,21 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import { Message } from '@/types';
+import {Message, User} from '@/types';
 import ChatWindow from '../components/chatWindow';
-import { getMessages } from '@/services/api';
+import {getMessages, getUser} from '@/services/api';
 import {Box, Typography} from "@mui/material";
 import MessageWebSocket from "@/services/messageWebSocket";
 
 const Home: React.FC = () => {
+    const [username, setUsername] = useState<string | null>("Sofie");
+    const [user, setUser] = useState<User | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
+
+    const updateUser = async () => {
+        if (!username) return;
+
+        const data = await getUser(username);
+        setUser(data);
+    }
 
     useEffect(() => {
         const fetchMessages = async () => {
             const data = await getMessages();
             setMessages(data);
         };
-
         fetchMessages();
+
+        const fetchUser = async () => {
+            if (!username) return;
+
+            const data = await getUser(username);
+            setUser(data);
+        }
+        fetchUser();
 
         // WebSocket functionality
         MessageWebSocket.getInstance(messages, setMessages);
@@ -31,7 +47,7 @@ const Home: React.FC = () => {
                     Welcome to the Public Chat!
                 </Typography>
                 <Box>
-                    <ChatWindow messages={messages} />
+                    {user && <ChatWindow messages={messages} user={user} updateUser={updateUser} />}
                 </Box>
             </main>
         </div>

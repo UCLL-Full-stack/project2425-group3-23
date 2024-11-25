@@ -96,7 +96,7 @@ const main = async () => {
         },
     });
 
-/*    const friendRequest = await prisma.friendRequest.create({
+    const friendRequest = await prisma.friendRequest.create({
         data: {
             status: 'accepted',
             sender: {
@@ -130,7 +130,7 @@ const main = async () => {
                 connect: {username: userSofie.username},
             },
         }
-    });*/
+    });
 }
 
 (async () => {

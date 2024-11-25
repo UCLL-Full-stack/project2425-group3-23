@@ -52,9 +52,9 @@ const getFriendRequestsByReceiver = async ({ receiverUsername }: { receiverUsern
     }
 }
 
-const getFriendRequestByUsernames = async ({ senderUsername, receiverUsername }: { senderUsername: string, receiverUsername: string }) : Promise<FriendRequest | undefined> => {
+const getFriendRequestsByUsernames = async ({ senderUsername, receiverUsername }: { senderUsername: string, receiverUsername: string }) : Promise<FriendRequest[] | undefined> => {
     try {
-        const friendRequestPrisma = await database.friendRequest.findFirst({
+        const friendRequestsPrisma = await database.friendRequest.findMany({
             where: {
                 senderUsername: senderUsername,
                 receiverUsername: receiverUsername
@@ -64,7 +64,7 @@ const getFriendRequestByUsernames = async ({ senderUsername, receiverUsername }:
                 receiver: true
             }
         });
-        return friendRequestPrisma ? FriendRequest.from(friendRequestPrisma) : undefined;
+        return friendRequestsPrisma.map((friendRequest : any) => FriendRequest.from(friendRequest));
     } catch (error) {
         console.log(error);
         throw new Error('Database error. See server logs for details.');
@@ -115,7 +115,7 @@ export default {
     getAllFriendRequests,
     getFriendRequestById,
     getFriendRequestsByReceiver,
-    getFriendRequestByUsernames,
+    getFriendRequestsByUsernames,
     createFriendRequest,
     setFriendRequestStatus
 }
