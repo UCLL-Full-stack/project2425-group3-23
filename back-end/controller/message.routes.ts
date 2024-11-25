@@ -4,6 +4,7 @@
  *   schemas:
  *     Message:
  *       type: object
+ *       description: A message in a chat sent by a user.
  *       properties:
  *         id:
  *           type: number
@@ -19,16 +20,37 @@
  *           example: false
  *         sender:
  *           type: object
- *           $ref: '#/components/schemas/User'
  *           description: The user who sent the message.
+ *           properties:
+ *             username:
+ *               type: string
+ *               description: The username of the sender.
+ *               example: JohnDoe
  *         chat:
  *           type: object
  *           $ref: '#/components/schemas/Chat'
  *           description: The chat the message is part of.
+ *     MessageInput:
+ *       type: object
+ *       description: The input for creating a new message.
+ *       properties:
+ *         content:
+ *           type: string
+ *           description: The message content.
+ *           example: Hello, world!
+ *         sender:
+ *           type: object
+ *           description: The user who sent the message.
+ *           properties:
+ *             username:
+ *               type: string
+ *               description: The username of the sender.
+ *               example: JohnDoe
  */
 
 import express, {Request, Response, NextFunction} from 'express';
-import {Message} from "../model/message";
+import {Message} from '../types';
+import {prepareMessage} from '../util/dtoConverters';
 import messageService from '../service/message.service';
 import {MessageCreateInput} from "../types";
 
@@ -51,8 +73,14 @@ const messageRouter = express.Router();
  */
 messageRouter.get('/', async (req : Request, res : Response, next : NextFunction) => {
     try {
-        const messages: Message[] = await messageService.getAllMessages();
-        res.status(200).json(messages);
+        const messages = await messageService.getAllMessages();
+
+        const data : Message[] = messages as unknown as Message[];
+        data.map((message: Message) => {
+            prepareMessage(message);
+        });
+
+        res.status(200).json(data);
     } catch (error) {
         next(error);
     }
@@ -81,12 +109,15 @@ messageRouter.get('/', async (req : Request, res : Response, next : NextFunction
 messageRouter.get('/:id', async (req : Request, res : Response, next : NextFunction) => {
     try {
         const id: number = parseInt(req.params.id);
-        const message: Message | undefined = await messageService.getMessageById(id);
+        const message = await messageService.getMessageById(id);
         if (!message) {
-            res.status(404).json({message: 'Message not found.'});
+            throw new Error('Message not found.');
         }
 
-        res.status(200).json(message);
+        const data : Message = message as unknown as Message;
+        prepareMessage(data);
+
+        res.status(200).json(data);
     } catch (error) {
         next(error);
     }
@@ -102,7 +133,7 @@ messageRouter.get('/:id', async (req : Request, res : Response, next : NextFunct
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Message'
+ *             $ref: '#/components/schemas/MessageInput'
  *     responses:
  *       200:
  *         description: The message was successfully added.
@@ -114,8 +145,12 @@ messageRouter.get('/:id', async (req : Request, res : Response, next : NextFunct
 messageRouter.post('/', async (req : Request, res : Response, next : NextFunction) => {
     try {
         const messageInput : MessageCreateInput = req.body;
-        const message : Message = await messageService.createMessage(messageInput);
-        res.status(200).json(message);
+        const message = await messageService.createMessage(messageInput);
+
+        const data : Message = message as unknown as Message;
+        prepareMessage(data);
+
+        res.status(200).json(data);
     } catch (error) {
         next(error);
     }

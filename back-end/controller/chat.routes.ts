@@ -4,6 +4,7 @@
  *   schemas:
  *     Chat:
  *       type: object
+ *       description: A chat in the chat application.
  *       properties:
  *         id:
  *           type: number
@@ -13,14 +14,4 @@
  *           type: string
  *           description: The type of the chat.
  *           example: public
- *         messages:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/Message'
- *           description: The messages in the chat.
- *         users:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/User'
- *           description: The users in the chat.
  */

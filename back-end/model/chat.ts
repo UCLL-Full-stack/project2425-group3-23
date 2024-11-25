@@ -78,19 +78,22 @@ export class Chat {
         type,
         users,
         messages
-    } : ChatPrisma & { users: UserPrisma[], messages: MessagePrisma[] }): Chat {
+    } : ChatPrisma & { users?: UserPrisma[], messages?: MessagePrisma[] }): Chat {
         return new Chat({
             id,
             type,
-            users: users.map((user) => {
+            users: !users ? [] : users.map((user) => {
                 return new User({
                     username: user.username,
                     role: user.role,
                     password: user.password,
-                    messages: []
+                    messages: [],
+                    chats: [],
+                    friends: [],
+                    friendRequests: []
                 });
             }),
-            messages: messages.map((message) => {
+            messages: !messages ? [] : messages.map((message) => {
                 return new Message({
                     content: message.content,
                     deleted: message.deleted,
@@ -98,7 +101,10 @@ export class Chat {
                         username: message.senderUsername,
                         role: "?",
                         password: "?",
-                        messages: []
+                        messages: [],
+                        chats: [],
+                        friends: [],
+                        friendRequests: []
                     }),
                     chat: new Chat({
                         id: message.chatId,

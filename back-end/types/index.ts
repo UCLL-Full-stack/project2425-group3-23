@@ -13,6 +13,8 @@ export interface User {
     password?: string;
     messages?: Message[];
     chats?: Chat[];
+    friends?: User[];
+    friendRequests?: FriendRequest[];
 }
 
 export interface Message {
@@ -28,4 +30,11 @@ export interface Chat {
     type?: string;
     users?: User[];
     messages?: Message[];
+}
+
+export interface FriendRequest {
+    id?: number;
+    status?: string;
+    sender?: User;
+    receiver?: User;
 }

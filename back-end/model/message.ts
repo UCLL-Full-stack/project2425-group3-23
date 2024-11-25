@@ -92,18 +92,34 @@ export class Message {
         deleted,
         sender,
         chat,
-    } : MessagePrisma & { sender: UserPrisma, chat: ChatPrisma }) : Message {
+    } : MessagePrisma & { sender?: UserPrisma, chat?: ChatPrisma }) : Message {
         return new Message({
             id,
             content,
             deleted,
-            sender: new User({
+            sender: !sender ? new User({
+                username: '?',
+                role: '?',
+                password: '?',
+                messages: [],
+                chats: [],
+                friends: [],
+                friendRequests: []
+            }) : new User({
                 username: sender.username,
                 role: sender.role,
                 password: sender.password,
-                messages: []
+                messages: [],
+                chats: [],
+                friends: [],
+                friendRequests: []
             }),
-            chat: new Chat({
+            chat: !chat ? new Chat({
+                id: 0,
+                type: '?',
+                users: [],
+                messages: []
+            }) : new Chat({
                 id: chat.id,
                 type: chat.type,
                 users: [],
