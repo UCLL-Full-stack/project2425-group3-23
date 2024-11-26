@@ -8,6 +8,7 @@ import {messageRouter} from "./controller/message.routes";
 import {userRouter} from "./controller/user.routes";
 import expressWs from "express-ws";
 import WebsocketService from "./service/websocket.service";
+import {friendRequestRouter} from "./controller/friendRequest.routes";
 
 const app = expressWs(express()).app;
 dotenv.config();
@@ -18,6 +19,7 @@ app.use(bodyParser.json());
 
 app.use('/messages', messageRouter);
 app.use('/users', userRouter);
+app.use('/friend-requests', friendRequestRouter);
 
 app.get('/status', (req, res) => {
     res.json({ message: 'Back-end is running...' });

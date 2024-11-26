@@ -36,6 +36,42 @@ const main = async () => {
         },
     });
 
+    const chatSofieMember = await prisma.chat.update({
+        where: { id: publicChat.id },
+        data: {
+            users: {
+                connect: { username: userSofie.username },
+            },
+        },
+    });
+
+    const sofieChatMember = await prisma.user.update({
+        where: { username: userSofie.username },
+        data: {
+            chats: {
+                connect: { id: publicChat.id },
+            },
+        },
+    });
+
+    const chatYorickMember = await prisma.chat.update({
+        where: { id: publicChat.id },
+        data: {
+            users: {
+                connect: { username: userYorick.username },
+            },
+        },
+    });
+
+    const yorickChatMember = await prisma.user.update({
+        where: { username: userYorick.username },
+        data: {
+            chats: {
+                connect: { id: publicChat.id },
+            },
+        },
+    });
+
     const firstMessage = await prisma.message.create({
         data: {
             content: 'Hello, world! 🤖',
@@ -58,6 +94,42 @@ const main = async () => {
                 connect: { id: publicChat.id },
             },
         },
+    });
+
+    const friendRequest = await prisma.friendRequest.create({
+        data: {
+            status: 'accepted',
+            sender: {
+                connect: { username: userYorick.username },
+            },
+            receiver: {
+                connect: { username: userSofie.username },
+            },
+        },
+    });
+
+    const sofiesFriend = await prisma.user.update({
+        where: { username: userSofie.username },
+        data: {
+            ownsFriends: {
+                connect: { username: userYorick.username },
+            },
+            friendsOf: {
+                connect: { username: userYorick.username },
+            },
+        },
+    });
+
+    const yoricksFriend = await prisma.user.update({
+        where: { username: userYorick.username },
+        data: {
+            ownsFriends: {
+                connect: {username: userSofie.username},
+            },
+            friendsOf: {
+                connect: {username: userSofie.username},
+            },
+        }
     });
 }
 

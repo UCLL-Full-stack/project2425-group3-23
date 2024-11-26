@@ -18,11 +18,15 @@ model Message {
 }
 
 model User {
-  username String    @id
-  role     String
-  password String
-  messages Message[]
-  chats    Chat[]
+  username               String          @id
+  role                   String
+  password               String
+  messages               Message[]
+  chats                  Chat[]
+  ownsFriends            User[]          @relation("userFriends") // Friends that this user has added
+  friendsOf              User[]          @relation("userFriends") // Users that have added this user as a friend
+  sentFriendRequests     FriendRequest[] @relation("SenderRelation") // Friend requests that this user has sent
+  receivedFriendRequests FriendRequest[] @relation("ReceiverRelation") // Friend requests that this user has received
 }
 
 model Chat {
@@ -30,4 +34,13 @@ model Chat {
   type     String
   users    User[]
   messages Message[]
+}
+
+model FriendRequest {
+  id               Int    @id @default(autoincrement())
+  status           String @default("pending")
+  sender           User   @relation("SenderRelation", fields: [senderUsername], references: [username])
+  senderUsername   String
+  receiver         User   @relation("ReceiverRelation", fields: [receiverUsername], references: [username])
+  receiverUsername String
 }

@@ -1,31 +1,39 @@
 import React, {useState} from 'react';
 import {createMessage} from '@/services/api';
 import {Box, Button, MenuItem, Select, TextField} from "@mui/material";
+import GenericErrorDialog from "@/components/genericErrorDialog";
 
-const ChatSendBox: React.FC = () => {
+type Props = {
+    senderUsername: string;
+}
+
+const ChatSendBox: React.FC<Props> = ({ senderUsername }) => {
     const [content, setContent] = useState<string>('');
+    const [errorDialogOpen, setErrorDialogOpen] = React.useState(false);
+    const [errorDialogMessage, setErrorDialogMessage] = React.useState('');
+
+    const openErrorDialog = (message: string) => {
+        setErrorDialogMessage(message);
+        setErrorDialogOpen(true);
+    }
+
+    const closeErrorDialog = () => {
+        setErrorDialogOpen(false);
+    }
 
     return (
         <>
             <Box component="form" sx={{ display: 'flex', alignItems: 'center', gap: '0.5em' }} onSubmit={(event) => {
                 event.preventDefault();
 
-                const form = event.target as HTMLFormElement;
-                const senderSelect = form.sender as HTMLSelectElement;
-                const sender = senderSelect.value;
-
-                createMessage(content, sender)
+                createMessage(content, senderUsername)
                     .then(() => {
                         setContent('');
                     })
                     .catch((error) => {
-                        console.error('Failed to send message:', error);
+                        openErrorDialog(error.message);
                     });
             }}>
-                <Select name="sender" sx={{ minWidth: '100px' }} defaultValue="Sofie">
-                    <MenuItem value="Sofie">Sofie</MenuItem>
-                    <MenuItem value="Yorick">Yorick</MenuItem>
-                </Select>
                 <TextField
                     sx={{ flexGrow: 1 }}
                     placeholder="Type a message..."
@@ -36,11 +44,12 @@ const ChatSendBox: React.FC = () => {
                 <Button
                     variant="contained"
                     type="submit"
-                    sx={{ flexShrink: 0, height: '4em' }}
+                    sx={{ flexShrink: 0, height: '4em', width: '7.5em' }}
                 >
                     Send
                 </Button>
             </Box>
+            <GenericErrorDialog open={errorDialogOpen} onClose={closeErrorDialog} errorMessage={errorDialogMessage} />
         </>
     );
 }

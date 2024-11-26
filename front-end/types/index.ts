@@ -2,17 +2,25 @@ export interface User {
     username: string;
     role: string;
     password: string;
+    friends: User[];
+    friendRequests: FriendRequest[];
 }
 
 export interface Message {
-    id?: number;
+    id: number;
     content: string;
     deleted: boolean;
     sender: User;
 }
-export type ChatMessage = {
+
+export interface FriendRequest {
     id: number;
-    username: string;
+    status: string;
+    sender: User;
+    receiver: User;
+}
+
+export interface Response {
     message: string;
-    timestamp: string;
-  };
+    status: string;
+}

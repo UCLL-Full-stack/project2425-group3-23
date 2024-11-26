@@ -4,6 +4,7 @@
  *   schemas:
  *     User:
  *       type: object
+ *       description: A user of the chat application.
  *       properties:
  *         username:
  *           type: string
@@ -13,25 +14,30 @@
  *           type: string
  *           description: The role of the user.
  *           example: user
- *         password:
- *           type: string
- *           description: The password of the user.
- *           example: password
- *         messages:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/Message'
- *           description: The messages sent by the user.
- *         chat:
+ *         chats:
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/Chat'
  *           description: The chats the user is a part of.
+ *         friends:
+ *           type: array
+ *           description: The user's friends.
+ *           items:
+ *             $ref: '#/components/schemas/Friend'
+ *     Friend:
+ *       type: object
+ *       description: A friend of the user.
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: The username of the friend.
+ *           example: JaneDoe
  */
 
 import express, {Request, Response, NextFunction} from 'express';
 import userService from '../service/user.service';
-import {User} from "../model/user";
+import {User, FriendRequest} from '../types';
+import {prepareFriend, prepareFriendRequest, prepareUser} from '../util/dtoConverters';
 
 const userRouter = express.Router();
 
@@ -52,8 +58,14 @@ const userRouter = express.Router();
  */
 userRouter.get('/', async (req : Request, res : Response, next : NextFunction) => {
     try {
-        const users : User[] = await userService.getAllUsers();
-        res.status(200).json(users);
+        const users = await userService.getAllUsers();
+
+        const data : User[] = users as unknown as User[];
+        data.map((user: User) => {
+            prepareUser(user);
+        });
+
+        res.status(200).json(data);
     } catch (error) {
         next(error);
     }
@@ -84,12 +96,140 @@ userRouter.get('/', async (req : Request, res : Response, next : NextFunction) =
 userRouter.get('/:username', async (req : Request, res : Response, next : NextFunction) => {
     try {
         const username : string = req.params.username;
-        const user : User | undefined = await userService.getUserByUsername(username);
+        const user = await userService.getUserByUsername(username);
         if (!user) {
-            res.status(404).json({message: `User ${username} not found`});
+            throw new Error(`User ${username} not found`);
         }
 
-        res.status(200).json(user);
+        const data : User = user as unknown as User;
+        prepareUser(data);
+
+        res.status(200).json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * @swagger
+ * /users/{username}/friends:
+ *   get:
+ *     summary: Get a user's friends
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         description: The username of the user to retrieve friends for.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The user's friends
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Friend'
+ *       404:
+ *         description: The user was not found
+ */
+userRouter.get('/:username/friends', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const username : string = req.params.username;
+        const user = await userService.getUserByUsername(username);
+
+        if (!user) {
+            throw new Error(`User ${username} not found`);
+        }
+
+        const friends = await userService.getFriends(username);
+
+        const data = friends as unknown as User[];
+        data.map((user: User) => {
+            prepareFriend(user);
+        });
+
+        res.status(200).json(data);
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * @swagger
+ * /users/{username}/friends/{friendUsername}:
+ *   delete:
+ *     summary: Remove a friend from a user
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         description: The username of the user to remove a friend from.
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: friendUsername
+ *         required: true
+ *         description: The username of the friend to remove.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: The friend was removed successfully
+ *       404:
+ *         description: The user or friend was not found
+ */
+userRouter.delete('/:username/friends/:friendUsername', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const username: string = req.params.username;
+        const friendUsername: string = req.params.friendUsername;
+        await userService.removeFriend({username, friendUsername});
+        res.status(204).end();
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * @swagger
+ * /users/{username}/friendRequests:
+ *   get:
+ *     summary: Get a user's friend requests
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         description: The username of the user to retrieve friend requests for.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The user's friend requests
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/FriendRequest'
+ *       404:
+ *         description: The user was not found
+ */
+userRouter.get('/:username/friend-requests', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const username : string = req.params.username;
+        const friendRequests = await userService.getFriendRequests({username});
+
+        if (!friendRequests) {
+            throw new Error(`User ${username} not found`);
+        }
+
+        const data = friendRequests as unknown as FriendRequest[];
+        data.map((friendRequest: FriendRequest) => {
+            prepareFriendRequest(friendRequest);
+        });
+
+        res.status(200).json(data);
     } catch (error) {
         next(error);
     }
