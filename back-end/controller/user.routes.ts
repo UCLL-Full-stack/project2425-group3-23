@@ -36,8 +36,8 @@
 
 import express, {Request, Response, NextFunction} from 'express';
 import userService from '../service/user.service';
-import {User} from '../types';
-import {prepareFriend, prepareUser} from '../util/dtoConverters';
+import {User, FriendRequest} from '../types';
+import {prepareFriend, prepareFriendRequest, prepareUser} from '../util/dtoConverters';
 
 const userRouter = express.Router();
 
@@ -186,6 +186,50 @@ userRouter.delete('/:username/friends/:friendUsername', async (req : Request, re
         const friendUsername: string = req.params.friendUsername;
         await userService.removeFriend({username, friendUsername});
         res.status(204).end();
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * @swagger
+ * /users/{username}/friendRequests:
+ *   get:
+ *     summary: Get a user's friend requests
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         description: The username of the user to retrieve friend requests for.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The user's friend requests
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/FriendRequest'
+ *       404:
+ *         description: The user was not found
+ */
+userRouter.get('/:username/friend-requests', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const username : string = req.params.username;
+        const friendRequests = await userService.getFriendRequests({username});
+
+        if (!friendRequests) {
+            throw new Error(`User ${username} not found`);
+        }
+
+        const data = friendRequests as unknown as FriendRequest[];
+        data.map((friendRequest: FriendRequest) => {
+            prepareFriendRequest(friendRequest);
+        });
+
+        res.status(200).json(data);
     } catch (error) {
         next(error);
     }

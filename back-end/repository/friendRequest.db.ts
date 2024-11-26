@@ -71,6 +71,25 @@ const getFriendRequestsByUsernames = async ({ senderUsername, receiverUsername }
     }
 }
 
+const getMostCurrentFriendRequestByUsernames = async ({ senderUsername, receiverUsername }: { senderUsername: string, receiverUsername: string }) : Promise<FriendRequest | undefined> => {
+    try {
+        const friendRequestsPrisma = await database.friendRequest.findMany({
+            where: {
+                senderUsername: senderUsername,
+                receiverUsername: receiverUsername
+            },
+            include: {
+                sender: true,
+                receiver: true
+            }
+        });
+        return friendRequestsPrisma.map((friendRequest : any) => FriendRequest.from(friendRequest)).pop();
+    } catch (error) {
+        console.log(error);
+        throw new Error('Database error. See server logs for details.');
+    }
+}
+
 const createFriendRequest = async ({ senderUsername, receiverUsername }: { senderUsername: string, receiverUsername: string }) : Promise<FriendRequest> => {
     try {
         const friendRequestPrisma = await database.friendRequest.create({
@@ -116,6 +135,7 @@ export default {
     getFriendRequestById,
     getFriendRequestsByReceiver,
     getFriendRequestsByUsernames,
+    getMostCurrentFriendRequestByUsernames,
     createFriendRequest,
     setFriendRequestStatus
 }

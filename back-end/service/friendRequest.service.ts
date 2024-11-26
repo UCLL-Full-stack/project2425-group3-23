@@ -11,6 +11,16 @@ const getFriendRequestById = async (id: number) : Promise<FriendRequest | undefi
 }
 
 const sendFriendRequest = async (senderUsername: string, receiverUsername: string) : Promise<void> => {
+    if (!senderUsername) {
+        throw new Error("Sender username is required");
+    }
+    if (!receiverUsername) {
+        throw new Error("Receiver username is required");
+    }
+    if (senderUsername === receiverUsername) {
+        throw new Error("Cannot send friend request to self");
+    }
+
     const existingFriendRequests = await friendRequestDb.getFriendRequestsByUsernames({senderUsername, receiverUsername});
     if (existingFriendRequests && existingFriendRequests.map(friendRequest => friendRequest.getStatus()).includes("pending")) {
         throw new Error("Friend request already pending");

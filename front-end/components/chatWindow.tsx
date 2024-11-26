@@ -4,6 +4,7 @@ import {Avatar, List, ListItem, ListItemText} from "@mui/material";
 import {Box} from "@mui/system";
 import ChatSendBox from "@/components/chatSendBox";
 import ChatProfileDialog from "@/components/chatProfileDialog";
+import ChatFriendsWindow from "@/components/chatFriendsWindow";
 
 interface ChatWindowProps {
     messages: Message[];
@@ -38,12 +39,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) =
 
     return (
         <>
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', gap: '1em' }}>
                 <Box
                     sx={{
-                        width: '50%',
+                        width: '60%',
                         minWidth: '400px',
-                        maxWidth: '800px',
                         m: '0 auto',
                         p: '1em',
                         bgcolor: '#F3F3F3',
@@ -103,8 +103,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) =
                             <div ref={messagesEndRef}></div>
                         </List>
                     </Box>
-                    <ChatSendBox />
+                    <ChatSendBox senderUsername={user.username} />
                 </Box>
+                <ChatFriendsWindow user={user} updateUser={updateUser} />
             </Box>
             <ChatProfileDialog
                 user={user}

@@ -1,4 +1,4 @@
-import {Message, User} from '../types';
+import {FriendRequest, Message, User, Response} from '../types';
 
 const API_URL = 'http://localhost:3000'; // Sofie...
 
@@ -6,13 +6,14 @@ export const getMessages = async (): Promise<Message[]> => {
     try {
         const response = await fetch(`${API_URL}/messages`);
         if (!response.ok) {
-            throw new Error('Failed to fetch messages');
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
         }
         const data: Message[] = await response.json();
         return data;
     } catch (error) {
         console.error('Error fetching messages:', error);
-        return [];
+        throw error;
     }
 };
 
@@ -42,7 +43,8 @@ export const createMessage = async (
         });
 
         if (!response.ok) {
-            throw new Error('Failed to create message');
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
         }
 
         const data: Message = await response.json();
@@ -57,7 +59,8 @@ export const getUser = async (username: string): Promise<User> => {
     try {
         const response = await fetch(`${API_URL}/users/${username}`);
         if (!response.ok) {
-            throw new Error('Failed to fetch user');
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
         }
         return await response.json();
     } catch (error) {
@@ -66,7 +69,7 @@ export const getUser = async (username: string): Promise<User> => {
     }
 }
 
-export const addFriend = async (username: string, friendUsername: string): Promise<void> => {
+export const sendFriendRequest = async (username: string, friendUsername: string): Promise<void> => {
     try {
         const response = await fetch(`${API_URL}/friend-requests`, {
             method: 'POST',
@@ -79,10 +82,69 @@ export const addFriend = async (username: string, friendUsername: string): Promi
             }),
         });
         if (!response.ok) {
-            throw new Error('Failed to add friend');
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
         }
     } catch (error) {
         console.error('Error adding friend:', error);
+        throw error;
+    }
+}
+
+export const getFriendRequests = async (username: string): Promise<FriendRequest[]> => {
+    try {
+        const response = await fetch(`${API_URL}/users/${username}/friend-requests`);
+        if (!response.ok) {
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching friend requests:', error);
+        throw error;
+    }
+}
+
+export const acceptFriendRequest = async (id: number): Promise<void> => {
+    try {
+        const response = await fetch(`${API_URL}/friend-requests/${id}/accept`, {
+            method: 'PUT',
+        });
+        if (!response.ok) {
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
+        }
+    } catch (error) {
+        console.error('Error accepting friend request:', error);
+        throw error;
+    }
+}
+
+export const declineFriendRequest = async (id: number): Promise<void> => {
+    try {
+        const response = await fetch(`${API_URL}/friend-requests/${id}/decline`, {
+            method: 'PUT',
+        });
+        if (!response.ok) {
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
+        }
+    } catch (error) {
+        console.error('Error declining friend request:', error);
+        throw error;
+    }
+}
+
+export const getFriends = async (username: string): Promise<User[]> => {
+    try {
+        const response = await fetch(`${API_URL}/users/${username}/friends`);
+        if (!response.ok) {
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching friends:', error);
         throw error;
     }
 }
@@ -93,7 +155,8 @@ export const removeFriend = async (username: string, friendUsername: string): Pr
             method: 'DELETE',
         });
         if (!response.ok) {
-            throw new Error('Failed to remove friend');
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
         }
     } catch (error) {
         console.error('Error removing friend:', error);

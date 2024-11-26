@@ -1,5 +1,6 @@
 import {User} from "../model/user";
 import database from "./database";
+import {FriendRequest} from "../model/friendRequest";
 
 const getAllUsers = async () : Promise<User[]> => {
     try {
@@ -126,10 +127,29 @@ const removeFriend = async ({ username, friendUsername }: { username: string, fr
     }
 }
 
+const getFriendRequests = async ({ username }: { username: string }) : Promise<FriendRequest[] | null> => {
+    try {
+        const userPrisma = await database.user.findUnique({
+            where: {
+                username: username
+            },
+            include: {
+                receivedFriendRequests: true
+            }
+        });
+
+        return userPrisma ? userPrisma.receivedFriendRequests.map((friendRequest : any) => FriendRequest.from(friendRequest)) : null;
+    } catch (error) {
+        console.log(error);
+        throw new Error('Database error. See server logs for details.');
+    }
+}
+
 export default {
     getAllUsers,
     getUserByUsername,
     getFriends,
     addFriend,
     removeFriend,
+    getFriendRequests
 }

@@ -19,3 +19,8 @@ export interface FriendRequest {
     sender: User;
     receiver: User;
 }
+
+export interface Response {
+    message: string;
+    status: string;
+}
