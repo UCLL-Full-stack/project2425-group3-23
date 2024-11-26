@@ -30,22 +30,6 @@
  *           type: object
  *           $ref: '#/components/schemas/Chat'
  *           description: The chat the message is part of.
- *     MessageInput:
- *       type: object
- *       description: The input for creating a new message.
- *       properties:
- *         content:
- *           type: string
- *           description: The message content.
- *           example: Hello, world!
- *         sender:
- *           type: object
- *           description: The user who sent the message.
- *           properties:
- *             username:
- *               type: string
- *               description: The username of the sender.
- *               example: JohnDoe
  */
 
 import express, {Request, Response, NextFunction} from 'express';
@@ -133,7 +117,20 @@ messageRouter.get('/:id', async (req : Request, res : Response, next : NextFunct
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/MessageInput'
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: The message content.
+ *                 example: Hello, world!
+ *               sender:
+ *                 type: object
+ *                 description: The user who sent the message.
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                     description: The username of the sender.
+ *                     example: JohnDoe
  *     responses:
  *       200:
  *         description: The message was successfully added.
