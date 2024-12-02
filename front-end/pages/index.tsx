@@ -5,6 +5,7 @@ import ChatWindow from '../components/chatWindow';
 import {getMessages, getUser} from '@/services/api';
 import {Box, MenuItem, Select, Typography} from "@mui/material";
 import MessageWebSocket from "@/services/messageWebSocket";
+import Header from '@/components/header';
 
 const Home: React.FC = () => {
     const [username, setUsername] = useState<string | null>("Sofie");
@@ -46,6 +47,7 @@ const Home: React.FC = () => {
             <Head>
                 <title>Public Chat</title>
             </Head>
+            <Header /> 
             <main>
                 <Typography variant="h3" sx={{ mb: '0.25em', width: '100%', textAlign: 'center' }}>
                     Welcome to the Public Chat!
