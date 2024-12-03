@@ -1,0 +1,26 @@
+{
+    "errors": {
+        "unauthorized": "Unauthorized access. Please log in again."
+    },
+    "header": {
+        "welcome": "Welcome",
+        "nav": {
+            "home": "Home",
+            "login": "Login",
+            "logout": "Logout"
+    }},
+    "general.error": "An error has occurred. Please try again later.",
+    "login": {
+        "title": "Login",
+        "button": "Login",
+        "failed": "Failed to log in.",
+        "success": "Login succesful. Redirecting to homepage...",
+        "validate": {
+            "name": "Name is required",
+            "password": "Password is required"
+        },
+        "label": { "username": "Username:", "password": "Password:" }
+    }
+    
+    
+}

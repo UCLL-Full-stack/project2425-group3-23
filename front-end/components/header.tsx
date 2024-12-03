@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AppBar, Toolbar, Button, Box, Typography } from '@mui/material';
+import { useTranslation } from "next-i18next";
+import { User } from '@/types';
+import Language from './language/language';
 
 const Header: React.FC = () => {
-  const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
+  const { t } = useTranslation();
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
 
   useEffect(() => {
-    setLoggedInUser(localStorage.getItem("loggedInUser"));
+    const storedUser = localStorage.getItem("loggedInUser");
+    if (storedUser) {
+      setLoggedInUser(JSON.parse(storedUser));
+    }
   }, []);
 
   const handleLogout = () => {
@@ -31,7 +38,7 @@ const Header: React.FC = () => {
           padding: { xs: '0.5rem', md: '1rem' },
         }}
       >
-        {/* App Name */}
+        My app
         <Typography 
           variant="h6" 
           sx={{ 
@@ -39,10 +46,9 @@ const Header: React.FC = () => {
             fontWeight: 'bold', 
           }}
         >
-          MyApp
+          {t('header.appName', 'MyApp')}
         </Typography>
 
-        {/* Links */}
         <Box
           sx={{
             display: 'flex',
@@ -51,26 +57,34 @@ const Header: React.FC = () => {
           }}
         >
           <Link href="/" passHref>
-            <Button sx={{ color: 'white', textTransform: 'none' }}>Home</Button>
+            <Button sx={{ color: 'white', textTransform: 'none' }}>
+              {t('header.nav.home')}
+            </Button>
           </Link>
           <Link href="/chat" passHref>
-            <Button sx={{ color: 'white', textTransform: 'none' }}>Public Chat</Button>
+            <Button sx={{ color: 'white', textTransform: 'none' }}>
+              {t('header.nav.chat', 'Public Chat')}
+            </Button>
           </Link>
           {!loggedInUser ? (
             <Link href="/login" passHref>
-              <Button sx={{ color: 'white', textTransform: 'none' }}>Login</Button>
+              <Button sx={{ color: 'white', textTransform: 'none' }}>
+                {t('header.nav.login')}
+              </Button>
             </Link>
           ) : (
             <>
               <Button onClick={handleLogout} sx={{ color: 'white', textTransform: 'none' }}>
-                Logout
+                {t('header.nav.logout')}
               </Button>
               <Typography sx={{ color: 'white', fontSize: '0.9rem' }}>
-                Welcome, {loggedInUser}!
+                {t('header.welcome')}, {loggedInUser.username}!
               </Typography>
+
             </>
           )}
         </Box>
+        <Language></Language>
       </Toolbar>
     </AppBar>
   );

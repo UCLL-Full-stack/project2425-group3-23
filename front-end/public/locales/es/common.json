@@ -1,0 +1,25 @@
+{
+    "errors": {
+        "unauthorized": "Acceso no autorizado. Por favor, inicie sesión nuevamente."
+    },
+    "header": {
+        "welcome": "Bienvenido",
+        "nav": {
+            "home": "Inicio",
+            "login": "Conéctese",
+            "logout": "Cerrar sesión"
+    }},
+    "general.error": "Se ha producido un error. Vuelva a intentarlo más tarde.",
+    "login": {
+        "title": "Inicio de sesión",
+        "button": "Conéctese",
+        "failed": "Error al iniciar sesión.",
+        "success": "Inicio de sesión exitoso. Redirigiendo a la página de inicio...",
+        "validate": {
+            "name": "Nombre obligatorio",
+            "password": "Se requiere contraseña"
+    },
+    "label": { "username": "Nombre de usuario:", "password": "Contraseña:" }
+    }
+}
+    

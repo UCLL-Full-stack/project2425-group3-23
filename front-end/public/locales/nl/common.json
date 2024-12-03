@@ -1,0 +1,28 @@
+{
+    "errors": {
+        "unauthorized": "Geen toegang. Log opnieuw in alstublieft."
+    },
+    "header": {
+        "welcome": "Welkom",
+        "nav": {
+            "home": "Startpagina",
+            "login": "Inloggen",
+            "logout": "Uitloggen"
+        }
+    },
+    "general.error": "Er is een fout opgetreden. Probeer het later opnieuw.",
+    "login": {
+        "title": "Inloggen",
+        "button": "Inloggen",
+        "failed": "Inloggen mislukt.",
+        "success": "Succesvol ingelogd. Doorsturen naar de startpagina...",
+        "validate": {
+            "name": "Naam is verplicht",
+            "password": "Wachtwoord is verplicht"
+        },
+        "label": {
+            "username": "Gebruikersnaam:",
+            "password": "Wachtwoord:"
+        }
+    }
+}

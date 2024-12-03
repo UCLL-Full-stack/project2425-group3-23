@@ -3,8 +3,11 @@ import UserLoginForm from "@/components/users/userLoginFrom";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations} from 'next-i18next/serverSideTranslations'
 
 const Login: React.FC = () => {
+    const { t } = useTranslation();
     const router = useRouter();
 
     useEffect(() => {
@@ -17,7 +20,7 @@ const Login: React.FC = () => {
     return (
         <>
             <Head>
-                <title>User Login</title>
+                <title>{t('login.title')}</title>
             </Head>
             <Header />
             <main>
@@ -27,6 +30,15 @@ const Login: React.FC = () => {
             </main>
         </>
     );
+};
+
+export const getServerSideProps = async (context) => {
+    const {locale} = context;
+    return{
+        props: {
+            ...(await serverSideTranslations(locale ?? "en", ["common"])),
+        },
+    };
 };
 
 export default Login;
