@@ -15,13 +15,16 @@ const UserLoginForm: React.FC = () => {
       try {
           const user = { username, password };
           const response = await UserService.loginUser(user);
+
           if (!response.ok) {
               const data = await response.json();
               setErrorMessage(data.message || t('login.failed'));  
               return;
           }
+
           const data = await response.json();
-          localStorage.setItem("token", data.token);
+          localStorage.setItem("loggedInUser", JSON.stringify(data));
+
           router.push("/");
       } catch (error) {
           console.error("Login error:", error);

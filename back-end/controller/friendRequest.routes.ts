@@ -1,6 +1,11 @@
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     FriendRequest:
  *       type: object
@@ -44,6 +49,8 @@ const friendRequestRouter = express.Router();
  * /friend-requests:
  *   get:
  *     summary: Retrieve a list of friend requests.
+ *     security:
+ *       - bearerAuth: []
  *     description: Retrieve a list of friend requests.
  *     responses:
  *       200:
@@ -75,6 +82,8 @@ friendRequestRouter.get('/', async (req: Request, res: Response, next: NextFunct
  * /friend-requests/{id}:
  *   get:
  *     summary: Retrieve a friend request by ID.
+ *     security:
+ *       - bearerAuth: []
  *     description: Retrieve a friend request by ID.
  *     parameters:
  *       - in: path
@@ -115,6 +124,8 @@ friendRequestRouter.get('/:id', async (req: Request, res: Response, next: NextFu
  * /friend-requests:
  *   post:
  *     summary: Send a friend request.
+ *     security:
+ *       - bearerAuth: []
  *     description: Send a friend request.
  *     requestBody:
  *       required: true
@@ -154,6 +165,8 @@ friendRequestRouter.post('/', async (req: Request, res: Response, next: NextFunc
  * /friend-requests/{id}/accept:
  *   put:
  *     summary: Accept a friend request.
+ *     security:
+ *       - bearerAuth: []
  *     description: Accept a friend request.
  *     parameters:
  *       - in: path
@@ -182,6 +195,8 @@ friendRequestRouter.put('/:id/accept', async (req: Request, res: Response, next:
  * /friend-requests/{id}/decline:
  *   put:
  *     summary: Decline a friend request.
+ *     security:
+ *       - bearerAuth: []
  *     description: Decline a friend request.
  *     parameters:
  *       - in: path

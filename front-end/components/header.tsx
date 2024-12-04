@@ -4,21 +4,45 @@ import { AppBar, Toolbar, Button, Box, Typography } from '@mui/material';
 import { useTranslation } from "next-i18next";
 import { User } from '@/types';
 import Language from './language/language';
+import {getUser} from "@services/api";
 
 const Header: React.FC = () => {
   const { t } = useTranslation();
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("loggedInUser");
+    const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+
+    // Try to authenticate the user if there is a stored user
     if (storedUser) {
-      setLoggedInUser(JSON.parse(storedUser));
+      try {
+        updateUser(storedUser);
+      } catch (error) {
+        localStorage.removeItem("loggedInUser");
+        setLoggedInUser(null);
+      }
     }
   }, []);
+
+  const updateUser = async ({ username, token } : { username: string, token: string }) => {
+    try {
+      const user: User = await getUser(username, token);
+      if (user) {
+        setLoggedInUser(user);
+      } else {
+        localStorage.removeItem("loggedInUser");
+        setLoggedInUser(null);
+      }
+    } catch (error) {
+        localStorage.removeItem("loggedInUser");
+        setLoggedInUser(null);
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("loggedInUser");
     setLoggedInUser(null);
+    window.location.href = '/';
   };
 
   return (
@@ -28,6 +52,7 @@ const Header: React.FC = () => {
         backgroundColor: '#23272a', 
         width: '100%', 
         boxSizing: 'border-box',
+        mb: '1em'
       }}
     >
       <Toolbar 
@@ -38,7 +63,6 @@ const Header: React.FC = () => {
           padding: { xs: '0.5rem', md: '1rem' },
         }}
       >
-        My app
         <Typography 
           variant="h6" 
           sx={{ 

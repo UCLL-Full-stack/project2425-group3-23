@@ -9,6 +9,7 @@ import {userRouter} from "./controller/user.routes";
 import expressWs from "express-ws";
 import WebsocketService from "./service/websocket.service";
 import {friendRequestRouter} from "./controller/friendRequest.routes";
+import {expressjwt} from "express-jwt";
 
 const app = expressWs(express()).app;
 dotenv.config();
@@ -16,6 +17,15 @@ const port = process.env.APP_PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
+
+app.use(
+    expressjwt({
+        secret: process.env.JWT_SECRET || 'default_secret',
+        algorithms: ['HS256'],
+    }).unless({
+        path: ['/api-docs', /^\/api-docs\/.*/, '/users/login', '/users/register', '/status', { url: '/messages', methods: ['GET'] }]
+    }
+));
 
 app.use('/messages', messageRouter);
 app.use('/users', userRouter);

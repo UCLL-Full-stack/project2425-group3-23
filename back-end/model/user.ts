@@ -68,6 +68,28 @@ export class User {
         if (!user.password) {
             throw new Error('Password is required');
         }
+
+        // Validate length
+        if (user.username.length > 20) {
+            throw new Error('Username is too long');
+        }
+        if (user.password.length > 100) {
+            throw new Error('Password is too long');
+        }
+
+        // Password requirements
+        if (user.password.length < 8) {
+            throw new Error('Password must be at least 8 characters long');
+        }
+        if (!/[a-z]/.test(user.password)) {
+            throw new Error('Password must contain at least one lowercase letter');
+        }
+        if (!/[A-Z]/.test(user.password)) {
+            throw new Error('Password must contain at least one uppercase letter');
+        }
+        if (!/[0-9]/.test(user.password)) {
+            throw new Error('Password must contain at least one number');
+        }
     }
 
     getUsername(): string {
@@ -163,7 +185,7 @@ export class User {
                     sender: new User({
                         username: message.senderUsername,
                         role: "?",
-                        password: "?",
+                        password: "Password01",
                         chats: [],
                         messages: [],
                         friends: [],
@@ -203,7 +225,7 @@ export class User {
                     sender: new User({
                         username: friendRequest.senderUsername,
                         role: "?",
-                        password: "?",
+                        password: "Password01",
                         messages: [],
                         chats: [],
                         friends: [],
@@ -212,7 +234,7 @@ export class User {
                     receiver: new User({
                         username: friendRequest.receiverUsername,
                         role: "?",
-                        password: "?",
+                        password: "Password01",
                         messages: [],
                         chats: [],
                         friends: [],

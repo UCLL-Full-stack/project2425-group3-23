@@ -100,7 +100,7 @@ export class Chat {
                     sender: new User({
                         username: message.senderUsername,
                         role: "?",
-                        password: "?",
+                        password: "Password01",
                         messages: [],
                         chats: [],
                         friends: [],

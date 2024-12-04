@@ -22,13 +22,21 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
     const [errorDialogMessage, setErrorDialogMessage] = React.useState('');
     const [friendRequestsDialogOpen, setFriendRequestsDialogOpen] = React.useState(false);
     const [friendRequests, setFriendRequests] = React.useState(user.friendRequests);
+    const [token, setToken] = React.useState('');
 
     useEffect(() => {
-        updateFriendRequests();
+        const storedUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        setToken(storedUser.token);
     }, [user]);
 
+    useEffect(() => {
+        if (token) {
+            updateFriendRequests();
+        }
+    }, [token]);
+
     const updateFriendRequests = async () => {
-        const friendRequests = await getFriendRequests(user.username);
+        const friendRequests = await getFriendRequests(user.username, token);
         setFriendRequests(friendRequests.filter(request => request.status === 'pending'));
     }
 
@@ -43,7 +51,7 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
 
     const removeFriendClick = async (friend: string) => {
         try {
-            await removeFriend(user.username, friend);
+            await removeFriend(user.username, friend, token);
             updateUser();
         } catch (error : any) {
             openErrorDialog(error.message);
@@ -52,7 +60,7 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
 
     const sendFriendRequestClick = async () => {
         try {
-            await sendFriendRequest(user.username, friendUsername);
+            await sendFriendRequest(user.username, friendUsername, token);
             updateUser();
             setFriendUsername('');
         } catch (error : any) {
@@ -62,7 +70,7 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
 
     const acceptFriendRequestClick = async (id: number) => {
         try {
-            await acceptFriendRequest(id);
+            await acceptFriendRequest(id, token);
             updateUser();
             await updateFriendRequests();
         } catch (error : any) {
@@ -72,7 +80,7 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
 
     const declineFriendRequestClick = async (id: number) => {
         try {
-            await declineFriendRequest(id);
+            await declineFriendRequest(id, token);
             updateUser();
             await updateFriendRequests();
         } catch (error : any) {

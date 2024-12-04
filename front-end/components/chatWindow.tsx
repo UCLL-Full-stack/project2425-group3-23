@@ -8,7 +8,7 @@ import ChatFriendsWindow from "@/components/chatFriendsWindow";
 
 interface ChatWindowProps {
     messages: Message[];
-    user: User;
+    user: User | null;
     updateUser: () => void;
 }
 
@@ -59,7 +59,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) =
                         <List>
                             {messages.map((message: Message) => (
                                 <ListItem key={message.id}>
-                                    {message.sender?.username === 'Sofie' && (
+                                    {user && message.sender?.username === user.username && (
                                         <>
                                             <Avatar
                                                 sx={{ bgcolor: '#3399FF', mr: '0.5em' }}
@@ -78,7 +78,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) =
                                             </ListItemText>
                                         </>
                                     )}
-                                    {message.sender.username === 'Yorick' && (
+                                    {(!user || message.sender.username !== user.username) && (
                                         <>
                                             <ListItemText
                                                 sx={{
@@ -103,9 +103,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) =
                             <div ref={messagesEndRef}></div>
                         </List>
                     </Box>
-                    <ChatSendBox senderUsername={user.username} />
+                    {user && <ChatSendBox senderUsername={user.username} />}
                 </Box>
-                <ChatFriendsWindow user={user} updateUser={updateUser} />
+                {user && <ChatFriendsWindow user={user} updateUser={updateUser} />}
             </Box>
             <ChatProfileDialog
                 user={user}

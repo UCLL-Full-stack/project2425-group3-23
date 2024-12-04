@@ -1,17 +1,19 @@
 import { PrismaClient }  from "@prisma/client";
 import { set } from "date-fns";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 const main = async () => {
     await prisma.chat.deleteMany();
     await prisma.message.deleteMany();
+    await prisma.friendRequest.deleteMany();
     await prisma.user.deleteMany();
 
     const userYorick = await prisma.user.create({
         data: {
             username: 'Yorick',
-            password: 'Password01',
+            password: await bcrypt.hash('Password01', 12),
             role: 'user',
         },
     });
@@ -19,7 +21,7 @@ const main = async () => {
     const userSofie = await prisma.user.create({
         data: {
             username: 'Sofie',
-            password: 'Password01',
+            password: await bcrypt.hash('Password01', 12),
             role: 'user',
         },
     });
