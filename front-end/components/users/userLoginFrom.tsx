@@ -33,27 +33,39 @@ const UserLoginForm: React.FC = () => {
   };
 
     return (
-        <Box display="flex" flexDirection="column" alignItems="center" gap="1em">
-            <Typography variant="h4">{t('login.title')}</Typography> 
+        <Box display="flex" flexDirection="column" alignItems="center" gap="1em" sx={
+            {
+                width: "100%",
+                maxWidth: "400px",
+                margin: "0 auto",
+                padding: "1em",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                backgroundColor: "#f9f9f9"
+            }
+        }>
+            <Typography variant="h4">{t('login.title')}</Typography>
             {errorMessage && <Typography color="error">{errorMessage}</Typography>}
             <TextField
-                label={t('login.label.username')} 
+                label={t('login.label.username')}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 variant="outlined"
                 fullWidth
             />
             <TextField
-                label={t('login.label.password')} 
+                label={t('login.label.password')}
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 variant="outlined"
                 fullWidth
             />
-            <Button variant="contained" color="primary" onClick={handleLogin}>
-                {t('login.button')}
-            </Button>
+            <Box display="flex" justifyContent="flex-end" width="100%">
+                <Button variant="contained" color="primary" onClick={handleLogin}>
+                    {t('login.button')}
+                </Button>
+            </Box>
         </Box>
     );
 };

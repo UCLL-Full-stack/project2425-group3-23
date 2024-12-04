@@ -64,10 +64,11 @@ const Header: React.FC = () => {
         }}
       >
         <Typography 
-          variant="h6" 
+          variant="h1"
           sx={{ 
             color: 'white', 
-            fontWeight: 'bold', 
+            fontWeight: 'bold',
+            fontSize: { xs: '1.5rem', md: '2rem' },
           }}
         >
           {t('header.appName', 'MyApp')}

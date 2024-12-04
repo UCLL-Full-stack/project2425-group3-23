@@ -21,7 +21,11 @@ const Language: React.FC = () => {
             gap: 2
         }
     }>
-      <Typography variant="h6">Language</Typography>
+      <Typography variant="h6" sx={
+        {
+          fontSize: '1.5rem',
+        }
+      }>Language</Typography>
       <Select
         id="language"
         value={locale}
