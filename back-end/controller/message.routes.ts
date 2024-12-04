@@ -1,6 +1,11 @@
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Message:
  *       type: object
@@ -75,6 +80,8 @@ messageRouter.get('/', async (req : Request, res : Response, next : NextFunction
  * /messages/{id}:
  *   get:
  *     summary: Get a message by ID.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -112,6 +119,8 @@ messageRouter.get('/:id', async (req : Request, res : Response, next : NextFunct
  * /messages:
  *   post:
  *     summary: Add a new message.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:

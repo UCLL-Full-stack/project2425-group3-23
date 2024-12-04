@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {createMessage} from '@/services/api';
 import {Box, Button, MenuItem, Select, TextField} from "@mui/material";
 import GenericErrorDialog from "@/components/genericErrorDialog";
@@ -11,6 +11,14 @@ const ChatSendBox: React.FC<Props> = ({ senderUsername }) => {
     const [content, setContent] = useState<string>('');
     const [errorDialogOpen, setErrorDialogOpen] = React.useState(false);
     const [errorDialogMessage, setErrorDialogMessage] = React.useState('');
+    const [token, setToken] = useState<string>('');
+
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+        if (storedUser) {
+            setToken(storedUser.token);
+        }
+    }, []);
 
     const openErrorDialog = (message: string) => {
         setErrorDialogMessage(message);
@@ -26,7 +34,7 @@ const ChatSendBox: React.FC<Props> = ({ senderUsername }) => {
             <Box component="form" sx={{ display: 'flex', alignItems: 'center', gap: '0.5em' }} onSubmit={(event) => {
                 event.preventDefault();
 
-                createMessage(content, senderUsername)
+                createMessage(content, senderUsername, token)
                     .then(() => {
                         setContent('');
                     })

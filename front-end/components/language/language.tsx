@@ -1,4 +1,6 @@
 import { useRouter } from "next/router";
+import {Box, MenuItem, Select, Typography} from "@mui/material";
+import React from "react";
 
 const Language: React.FC = () => {
   const router = useRouter();
@@ -11,21 +13,26 @@ const Language: React.FC = () => {
   };
 
   return (
-    <div className="ml-6">
-      <label htmlFor="language" className="text-white">
-        Language
-      </label>
-      <select
+    <Box sx={
+        {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2
+        }
+    }>
+      <Typography variant="h6">Language</Typography>
+      <Select
         id="language"
-        className="ml-2 p-1"
         value={locale}
         onChange={handleLanguageChange}
+        sx={{ backgroundColor: 'white' }}
       >
-        <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="nl">Nederlands</option>
-      </select>
-    </div>
+        <MenuItem value="en">English</MenuItem>
+        <MenuItem value="es">Español</MenuItem>
+        <MenuItem value="nl">Nederlands</MenuItem>
+      </Select>
+    </Box>
   );
 };
 

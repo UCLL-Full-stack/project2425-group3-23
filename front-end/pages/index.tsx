@@ -6,17 +6,34 @@ import {getMessages, getUser} from '@/services/api';
 import {Box, MenuItem, Select, Typography} from "@mui/material";
 import MessageWebSocket from "@/services/messageWebSocket";
 import Header from '@/components/header';
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import {useTranslation} from "next-i18next";
 
 const Home: React.FC = () => {
-    const [username, setUsername] = useState<string | null>("Sofie");
+    const { t } = useTranslation();
+
+    const [username, setUsername] = useState<string>("");
     const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string>("");
     const [messages, setMessages] = useState<Message[]>([]);
 
     const updateUser = async () => {
-        if (!username) return;
+        try {
+            if (!username) {
+                console.error("Failed to login", "No username");
+                return;
+            }
+            if (!token) {
+                console.error("Failed to login", "No token");
+                return;
+            }
 
-        const data = await getUser(username);
-        setUser(data);
+            const data = await getUser(username, token);
+            setUser(data);
+        } catch (error) {
+            setUser(null);
+            console.error(error);
+        }
     }
 
     useEffect(() => {
@@ -26,42 +43,45 @@ const Home: React.FC = () => {
         };
         fetchMessages();
 
-        const fetchUser = async () => {
-            if (!username) return;
-
-            const data = await getUser(username);
-            setUser(data);
+        const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+        if (storedUser) {
+            setUsername(storedUser.username);
+            setToken(storedUser.token);
         }
-        fetchUser();
 
         // WebSocket functionality
         MessageWebSocket.getInstance(messages, setMessages);
     }, []);
 
     useEffect(() => {
-        updateUser();
-    }, [username]);
+        if (username && token) {
+            updateUser();
+        }
+    }, [username, token]);
 
     return (
-        <div className="min-h-screen bg-[#23272a] text-white flex flex-col">
+        <>
             <Head>
                 <title>Public Chat</title>
             </Head>
-            <Header /> 
+            <Header />
             <main>
                 <Typography variant="h3" sx={{ mb: '0.25em', width: '100%', textAlign: 'center' }}>
                     Welcome to the Public Chat!
                 </Typography>
-                {user && <ChatWindow messages={messages} user={user} updateUser={updateUser} />}
-                <Box display='flex' justifyContent='center'>
-                    <Select defaultValue={"Sofie"} onChange={(event) => setUsername(event.target.value)} sx={{ width: '50%', mt: '1em' }}>
-                        <MenuItem value="Sofie">Sofie</MenuItem>
-                        <MenuItem value="Yorick">Yorick</MenuItem>
-                    </Select>
-                </Box>
+                {<ChatWindow messages={messages} user={user} updateUser={updateUser} />}
             </main>
-        </div>
+        </>
     );
+};
+
+export const getServerSideProps = async (context) => {
+    const {locale} = context;
+    return{
+        props: {
+            ...(await serverSideTranslations(locale ?? "en", ["common"])),
+        },
+    };
 };
 
 export default Home;

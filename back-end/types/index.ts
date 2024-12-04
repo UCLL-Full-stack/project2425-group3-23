@@ -38,3 +38,9 @@ export interface FriendRequest {
     sender?: User;
     receiver?: User;
 }
+
+export interface AuthenticationResponse {
+    token: string;
+    username: string;
+    role: string;
+}

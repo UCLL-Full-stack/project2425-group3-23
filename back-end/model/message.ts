@@ -100,7 +100,7 @@ export class Message {
             sender: !sender ? new User({
                 username: '?',
                 role: '?',
-                password: '?',
+                password: 'Password01',
                 messages: [],
                 chats: [],
                 friends: [],

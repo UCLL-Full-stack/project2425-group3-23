@@ -1,6 +1,22 @@
 import {User} from "../model/user";
 import database from "./database";
 import {FriendRequest} from "../model/friendRequest";
+import bcrypt from "bcrypt";
+
+const addUser = async ({ user } : { user: User }) : Promise<void> => {
+    try {
+        await database.user.create({
+            data: {
+                username: user.getUsername(),
+                password: await bcrypt.hash(user.getPassword(), 12),
+                role: user.getRole()
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw new Error('Database error. See server logs for details.');
+    }
+}
 
 const getAllUsers = async () : Promise<User[]> => {
     try {
@@ -146,6 +162,7 @@ const getFriendRequests = async ({ username }: { username: string }) : Promise<F
 }
 
 export default {
+    addUser,
     getAllUsers,
     getUserByUsername,
     getFriends,

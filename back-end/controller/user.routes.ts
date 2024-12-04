@@ -1,6 +1,11 @@
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     User:
  *       type: object
@@ -32,20 +37,105 @@
  *           type: string
  *           description: The username of the friend.
  *           example: JaneDoe
+ *     AuthenticationResponse:
+ *       type: object
+ *       description: The response to an authentication request.
+ *       properties:
+ *         token:
+ *           type: string
+ *           description: The JWT token.
+ *         username:
+ *           type: string
+ *           description: The username of the user.
+ *           example: JohnDoe
+ *         role:
+ *           type: string
+ *           description: The role of the user.
+ *           example: user
+ *     AuthenticationInput:
+ *       type: object
+ *       description: The input for a login request.
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: The username of the user.
+ *           example: JohnDoe
+ *         password:
+ *           type: string
+ *           description: The password of the user.
+ *           example: Password01
  */
 
 import express, {Request, Response, NextFunction} from 'express';
 import userService from '../service/user.service';
 import {User, FriendRequest} from '../types';
 import {prepareFriend, prepareFriendRequest, prepareUser} from '../util/dtoConverters';
+import accountService from "../service/account.service";
 
 const userRouter = express.Router();
+
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     summary: Authenticate a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AuthenticationInput'
+ *     responses:
+ *       200:
+ *         description: The user was authenticated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthenticationResponse'
+ */
+userRouter.post('/login', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const { username, password } = req.body;
+        const authenticationResponse = await accountService.authenticate({username, password});
+        res.status(200).json(authenticationResponse);
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * @swagger
+ * /users/register:
+ *   post:
+ *     summary: Register a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AuthenticationInput'
+ *     responses:
+ *       201:
+ *         description: The user was registered successfully
+ */
+userRouter.post('/register', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const { username, password } = req.body;
+
+        await accountService.register({username, password});
+        res.status(201).end();
+    } catch (error) {
+        next(error);
+    }
+});
 
 /**
  * @swagger
  * /users:
  *   get:
  *     summary: Get a list of all users
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of users
@@ -76,6 +166,8 @@ userRouter.get('/', async (req : Request, res : Response, next : NextFunction) =
  * /users/{username}:
  *   get:
  *     summary: Get a user by username
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: username
@@ -115,6 +207,8 @@ userRouter.get('/:username', async (req : Request, res : Response, next : NextFu
  * /users/{username}/friends:
  *   get:
  *     summary: Get a user's friends
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: username
@@ -161,6 +255,8 @@ userRouter.get('/:username/friends', async (req : Request, res : Response, next 
  * /users/{username}/friends/{friendUsername}:
  *   delete:
  *     summary: Remove a friend from a user
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: username
@@ -196,6 +292,8 @@ userRouter.delete('/:username/friends/:friendUsername', async (req : Request, re
  * /users/{username}/friendRequests:
  *   get:
  *     summary: Get a user's friend requests
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: username

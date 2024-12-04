@@ -20,7 +20,8 @@ export const getMessages = async (): Promise<Message[]> => {
 
 export const createMessage = async (
     content: string,
-    senderUsername: string
+    senderUsername: string,
+    token: string
 ): Promise<Message> => {
     try {
         if (!content) {
@@ -34,6 +35,7 @@ export const createMessage = async (
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 content,
@@ -55,9 +57,13 @@ export const createMessage = async (
     }
 };
 
-export const getUser = async (username: string): Promise<User> => {
+export const getUser = async (username: string, token: string): Promise<User> => {
     try {
-        const response = await fetch(`${API_URL}/users/${username}`);
+        const response = await fetch(`${API_URL}/users/${username}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!response.ok) {
             const errorResponse: Response = await response.json();
             throw new Error(errorResponse.message);
@@ -69,12 +75,13 @@ export const getUser = async (username: string): Promise<User> => {
     }
 }
 
-export const sendFriendRequest = async (username: string, friendUsername: string): Promise<void> => {
+export const sendFriendRequest = async (username: string, friendUsername: string, token: string): Promise<void> => {
     try {
         const response = await fetch(`${API_URL}/friend-requests`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 senderUsername: username,
@@ -91,9 +98,13 @@ export const sendFriendRequest = async (username: string, friendUsername: string
     }
 }
 
-export const getFriendRequests = async (username: string): Promise<FriendRequest[]> => {
+export const getFriendRequests = async (username: string, token: string): Promise<FriendRequest[]> => {
     try {
-        const response = await fetch(`${API_URL}/users/${username}/friend-requests`);
+        const response = await fetch(`${API_URL}/users/${username}/friend-requests`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!response.ok) {
             const errorResponse: Response = await response.json();
             throw new Error(errorResponse.message);
@@ -105,10 +116,13 @@ export const getFriendRequests = async (username: string): Promise<FriendRequest
     }
 }
 
-export const acceptFriendRequest = async (id: number): Promise<void> => {
+export const acceptFriendRequest = async (id: number, token: string): Promise<void> => {
     try {
         const response = await fetch(`${API_URL}/friend-requests/${id}/accept`, {
             method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (!response.ok) {
             const errorResponse: Response = await response.json();
@@ -120,10 +134,13 @@ export const acceptFriendRequest = async (id: number): Promise<void> => {
     }
 }
 
-export const declineFriendRequest = async (id: number): Promise<void> => {
+export const declineFriendRequest = async (id: number, token: string): Promise<void> => {
     try {
         const response = await fetch(`${API_URL}/friend-requests/${id}/decline`, {
             method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (!response.ok) {
             const errorResponse: Response = await response.json();
@@ -135,9 +152,13 @@ export const declineFriendRequest = async (id: number): Promise<void> => {
     }
 }
 
-export const getFriends = async (username: string): Promise<User[]> => {
+export const getFriends = async (username: string, token: string): Promise<User[]> => {
     try {
-        const response = await fetch(`${API_URL}/users/${username}/friends`);
+        const response = await fetch(`${API_URL}/users/${username}/friends`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!response.ok) {
             const errorResponse: Response = await response.json();
             throw new Error(errorResponse.message);
@@ -149,10 +170,13 @@ export const getFriends = async (username: string): Promise<User[]> => {
     }
 }
 
-export const removeFriend = async (username: string, friendUsername: string): Promise<void> => {
+export const removeFriend = async (username: string, friendUsername: string, token: string): Promise<void> => {
     try {
         const response = await fetch(`${API_URL}/users/${username}/friends/${friendUsername}`, {
             method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (!response.ok) {
             const errorResponse: Response = await response.json();

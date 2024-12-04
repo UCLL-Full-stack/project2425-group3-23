@@ -13,11 +13,21 @@ type Props = {
 
 const ChatProfileDialog: React.FC<Props> = ({ user, selectedUsername, updateUser, open, onClose }: Props) => {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string>("");
 
     useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+        if (storedUser) {
+            setToken(storedUser.token);
+        }
+
         const fetchSelectedUser = async () => {
-            if (selectedUsername) {
-                setSelectedUser(await getUser(selectedUsername));
+            try {
+                if (selectedUsername) {
+                    setSelectedUser(await getUser(selectedUsername, token));
+                }
+            } catch (error) {
+                console.error('Error fetching selected user:', error);
             }
         }
 
@@ -71,9 +81,9 @@ const ChatProfileDialog: React.FC<Props> = ({ user, selectedUsername, updateUser
     const addFriendClick = async () => {
         if (selectedUser && selectedUser.username) {
             try {
-                await sendFriendRequest(user.username, selectedUser.username);
+                await sendFriendRequest(user.username, selectedUser.username, token);
                 // Update the user object to reflect the new friend status
-                setSelectedUser(await getUser(selectedUser.username));
+                setSelectedUser(await getUser(selectedUser.username, token));
                 updateUser();
             } catch (error) {
                 console.error('Error adding friend:', error);
@@ -84,9 +94,9 @@ const ChatProfileDialog: React.FC<Props> = ({ user, selectedUsername, updateUser
     const removeFriendClick = async () => {
         if (selectedUser && selectedUser.username) {
             try {
-                await removeFriend(user.username, selectedUser.username);
+                await removeFriend(user.username, selectedUser.username, token);
                 // Update the user object to reflect the new friend status
-                setSelectedUser(await getUser(selectedUser.username));
+                setSelectedUser(await getUser(selectedUser.username, token));
                 updateUser();
             } catch (error) {
                 console.error('Error removing friend:', error);
@@ -101,9 +111,9 @@ const ChatProfileDialog: React.FC<Props> = ({ user, selectedUsername, updateUser
 
             if (request) {
                 try {
-                    await acceptFriendRequest(request.id);
+                    await acceptFriendRequest(request.id, token);
                     // Update the user object to reflect the new friend status
-                    setSelectedUser(await getUser(selectedUser.username));
+                    setSelectedUser(await getUser(selectedUser.username, token));
                     updateUser();
                 } catch (error) {
                     console.error('Error accepting friend request:', error);
@@ -119,9 +129,9 @@ const ChatProfileDialog: React.FC<Props> = ({ user, selectedUsername, updateUser
 
             if (request) {
                 try {
-                    await declineFriendRequest(request.id);
+                    await declineFriendRequest(request.id, token);
                     // Update the user object to reflect the new friend status
-                    setSelectedUser(await getUser(selectedUser.username));
+                    setSelectedUser(await getUser(selectedUser.username, token));
                     updateUser();
                 } catch (error) {
                     console.error('Error declining friend request:', error);

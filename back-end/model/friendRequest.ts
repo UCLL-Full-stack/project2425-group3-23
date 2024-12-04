@@ -87,7 +87,7 @@ export class FriendRequest {
             status,
             sender: !sender ? new User({
                 username: '?',
-                password: '?',
+                password: 'Password01',
                 role: '?',
                 messages: [],
                 chats: [],
@@ -112,7 +112,7 @@ export class FriendRequest {
                 friends: []
             }) : new User({
                 username: '?',
-                password: '?',
+                password: 'Password01',
                 role: '?',
                 messages: [],
                 chats: [],
