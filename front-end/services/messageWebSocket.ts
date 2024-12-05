@@ -5,7 +5,11 @@ class MessageWebSocket {
 
     static getInstance(messages: Message[], setMessages: (value: (((prevState: Message[]) => Message[]) | Message[])) => void): WebSocket {
         if (MessageWebSocket.instance === null) {
-            MessageWebSocket.instance = new WebSocket("ws://localhost:3000/ws");
+            const API_URL : string = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+            const wsProtocol : "wss" | "ws" = API_URL.startsWith("https") ? "wss" : "ws";
+
+            MessageWebSocket.instance = new WebSocket(`${API_URL.replace(/^https?/, wsProtocol)}/ws`);
+
             MessageWebSocket.instance.onopen = () => {
                 console.log('Connected to WebSocket.');
             }

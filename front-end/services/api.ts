@@ -1,6 +1,6 @@
 import {FriendRequest, Message, User, Response} from '../types';
 
-const API_URL = 'http://localhost:3000'; // Sofie...
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export const getPublicMessages = async (): Promise<Message[]> => {
     try {

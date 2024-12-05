@@ -1,4 +1,6 @@
 import { WebSocket } from 'ws';
+import {Message} from "../types";
+import {prepareMessage} from "../util/dtoConverters";
 
 class WebsocketService {
     private readonly clients: Set<WebSocket> = new Set();
@@ -15,10 +17,14 @@ class WebsocketService {
         this.clients.delete(client);
     }
 
-    broadcast(message: string): void {
+    broadcast(messageJsonString: string): void {
+        const message : Message = JSON.parse(messageJsonString);
+        prepareMessage(message);
+        const messageString = JSON.stringify(message);
+
         for (const client of this.clients) {
             if (client.readyState === 1) {
-                client.send(message);
+                client.send(messageString);
             }
         }
     }

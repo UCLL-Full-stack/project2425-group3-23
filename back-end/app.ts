@@ -18,12 +18,29 @@ const port = process.env.APP_PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+// Message server-to-client WebSocket functionality
+app.ws('/ws', (ws) => {
+    WebsocketService.addClient(ws);
+
+    ws.on('close', () => {
+        WebsocketService.removeClient(ws);
+    });
+});
+
 app.use(
     expressjwt({
         secret: process.env.JWT_SECRET || 'default_secret',
         algorithms: ['HS256'],
     }).unless({
-        path: ['/api-docs', /^\/api-docs\/.*/, '/users/login', '/users/register', '/status', { url: '/messages/public-chat', methods: ['GET'] }]
+        path: [
+            '/ws',
+            '/api-docs',
+            /^\/api-docs\/.*/,
+            '/users/login',
+            '/users/register',
+            '/status',
+            { url: '/messages/public-chat', methods: ['GET'] }
+        ]
     }
 ));
 
@@ -54,15 +71,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     } else {
         res.status(400).json({ status: 'application error', message: err.message });
     }
-});
-
-// Message server-to-client WebSocket functionality
-app.ws('/ws', (ws) => {
-    WebsocketService.addClient(ws);
-
-    ws.on('close', () => {
-        WebsocketService.removeClient(ws);
-    });
 });
 
 app.listen(port || 3000, () => {
