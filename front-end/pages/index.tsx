@@ -62,12 +62,12 @@ const Home: React.FC = () => {
     return (
         <>
             <Head>
-                <title>Public Chat</title>
+                <title>{t("chat.title")}</title>
             </Head>
             <Header />
             <main>
                 <Typography variant="h3" sx={{ mb: '0.25em', width: '100%', textAlign: 'center' }}>
-                    Welcome to the Public Chat!
+                    {t("chat.welcomePublic")}
                 </Typography>
                 {<ChatWindow messages={messages} user={user} updateUser={updateUser} />}
             </main>

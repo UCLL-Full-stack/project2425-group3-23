@@ -10,6 +10,7 @@ import {
 import React, {useEffect} from "react";
 import GenericErrorDialog from "@/components/genericErrorDialog";
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import {useTranslation} from "next-i18next";
 
 type chatFriendsWindowProps = {
     user: User;
@@ -17,6 +18,8 @@ type chatFriendsWindowProps = {
 }
 
 const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser }) => {
+    const { t } = useTranslation();
+
     const [friendUsername, setFriendUsername] = React.useState('');
     const [errorDialogOpen, setErrorDialogOpen] = React.useState(false);
     const [errorDialogMessage, setErrorDialogMessage] = React.useState('');
@@ -113,7 +116,7 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
         }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                 <Typography variant='h4' sx={{ textAlign: 'center', fontStyle: 'italic' }}>
-                    Friends
+                    {t("chat.friendsWindow.friends")}
                 </Typography>
                 <Box sx={{ position: 'absolute', right: 0 }}>
                     <NotificationsIcon
@@ -137,14 +140,14 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
                     }}>
                         <Typography variant='h6'>{friend.username}</Typography>
                         <Box sx={{ display: 'flex', gap: '0.5em' }}>
-                            <Button variant='contained' color='info'>Chat</Button>
-                            <Button variant='contained' color='error' onClick={() => removeFriendClick(friend.username)}>Remove</Button>
+                            <Button variant='contained' color='info'>{t("chat.friendsWindow.chat")}</Button>
+                            <Button variant='contained' color='error' onClick={() => removeFriendClick(friend.username)}>{t("chat.friendsWindow.remove")}</Button>
                         </Box>
                     </Box>
                 ))}
             </Box>
             <Box>
-                <Typography variant="h5">Send friend request</Typography>
+                <Typography variant="h5">{t("chat.friendsWindow.sendFriendRequest.title")}</Typography>
                 <Box sx={{
                     display: 'flex',
                     gap: '1em',
@@ -152,7 +155,7 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
                 }}>
                     <TextField
                         fullWidth
-                        placeholder={'User\'s username'}
+                        placeholder={t("chat.friendsWindow.sendFriendRequest.placeholder")}
                         value={friendUsername}
                         onChange={(event) => setFriendUsername(event.target.value)}
                     />
@@ -162,25 +165,25 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
                         onClick={sendFriendRequestClick}
                         sx={{ height: '4em', width: '8em' }}
                     >
-                        Send
+                        {t("chat.friendsWindow.sendFriendRequest.send")}
                     </Button>
                 </Box>
             </Box>
             <Dialog open={friendRequestsDialogOpen} onClose={() => setFriendRequestsDialogOpen(false)}>
                 <Box sx={{ p: '2em', minWidth: '300px' }}>
-                    <Typography variant='h4' sx={{ mb: '1em', textAlign: 'center' }}>Friend Requests</Typography>
+                    <Typography variant='h4' sx={{ mb: '1em', textAlign: 'center' }}>{t("notifications.friendRequests")}</Typography>
                     {friendRequests.length > 0 ? (
                         friendRequests.map(request => (
                             <Box key={request.sender.username} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '1em' }}>
                                 <Typography variant='h6'>{request.sender.username}</Typography>
                                 <Box sx={{ display: 'flex', gap: '0.5em' }}>
-                                    <Button variant='contained' color='primary' onClick={() => acceptFriendRequestClick(request.id)}>Accept</Button>
-                                    <Button variant='contained' color='error' onClick={() => declineFriendRequestClick(request.id)}>Decline</Button>
+                                    <Button variant='contained' color='primary' onClick={() => acceptFriendRequestClick(request.id)}>{t("notifications.accept")}</Button>
+                                    <Button variant='contained' color='error' onClick={() => declineFriendRequestClick(request.id)}>{t("notifications.decline")}</Button>
                                 </Box>
                             </Box>
                         ))
                     ) : (
-                        <Typography variant='body1' sx={{ textAlign: 'center' }}>No friend requests</Typography>
+                        <Typography variant='body1' sx={{ textAlign: 'center' }}>{t("notifications.noFriendRequests")}</Typography>
                     )}
                 </Box>
             </Dialog>

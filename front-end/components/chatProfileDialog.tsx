@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Avatar, Box, Button, Dialog, Typography} from "@mui/material";
 import {User} from "@/types";
 import {sendFriendRequest, getUser, removeFriend, acceptFriendRequest, declineFriendRequest} from "@/services/api";
+import {useTranslation} from "next-i18next";
 
 type Props = {
     user: User; // The username of the current user
@@ -12,6 +13,8 @@ type Props = {
 }
 
 const ChatProfileDialog: React.FC<Props> = ({ user, selectedUsername, updateUser, open, onClose }: Props) => {
+    const { t } = useTranslation();
+
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [token, setToken] = useState<string>("");
 
@@ -162,28 +165,28 @@ const ChatProfileDialog: React.FC<Props> = ({ user, selectedUsername, updateUser
                             <Typography variant="h5">{selectedUser?.username}</Typography>
                             {isFriend(user.username, selectedUser) && (
                                 <>
-                                    <Typography variant="body1" sx={{ textDecoration: "underline", fontWeight: 'bold' }}>Friend</Typography>
-                                    <Button variant="contained" color="error" onClick={removeFriendClick}>Remove Friend</Button>
+                                    <Typography variant="body1" sx={{ textDecoration: "underline", fontWeight: 'bold' }}>{t("chat.profileDialog.friend")}</Typography>
+                                    <Button variant="contained" color="error" onClick={removeFriendClick}>{t("chat.profileDialog.remove")}</Button>
                                 </>
                             )}
                             {user.username != selectedUser.username && !isFriend(user.username, selectedUser) && !hasPendingSentFriendRequest(user, selectedUser) && !hasPendingReceivedFriendRequest(user, selectedUser) && (
-                                <Button variant="contained" color="primary" onClick={addFriendClick}>Add Friend</Button>
+                                <Button variant="contained" color="primary" onClick={addFriendClick}>{t("chat.profileDialog.add")}</Button>
                             )}
                             {hasPendingReceivedFriendRequest(user, selectedUser) && (
                                 <>
-                                    <Typography variant="body1" sx={{ color: 'text.disabled' }}>Friend request received!</Typography>
-                                    <Button variant="contained" color="success" sx={{ mr: '0.5em' }} onClick={acceptFriendRequestClick}>Accept</Button>
-                                    <Button variant="contained" color="error" sx={{ ml: '0.5em' }} onClick={declineFriendRequestClick}>Decline</Button>
+                                    <Typography variant="body1" sx={{ color: 'text.disabled' }}>{t("chat.profileDialog.received")}</Typography>
+                                    <Button variant="contained" color="success" sx={{ mr: '0.5em' }} onClick={acceptFriendRequestClick}>{t("chat.profileDialog.accept")}</Button>
+                                    <Button variant="contained" color="error" sx={{ ml: '0.5em' }} onClick={declineFriendRequestClick}>{t("chat.profileDialog.decline")}</Button>
                                 </>
                             )}
                             {hasPendingSentFriendRequest(user, selectedUser) && (
                                 <>
-                                    <Typography variant="body1" sx={{ color: 'text.disabled' }}>Friend request pending...</Typography>
-                                    <Button variant="contained" color="error">Cancel</Button>
+                                    <Typography variant="body1" sx={{ color: 'text.disabled' }}>{t("chat.profileDialog.pending")}</Typography>
+                                    <Button variant="contained" color="error">{t("chat.profileDialog.cancel")}</Button>
                                 </>
                             )}
                             {user.username == selectedUser.username && (
-                                <Typography variant="body1" sx={{ color: 'text.disabled' }}>This is you!</Typography>
+                                <Typography variant="body1" sx={{ color: 'text.disabled' }}>{t("chat.profileDialog.thisIsYou")}</Typography>
                             )}
                         </Box>
                     </>
