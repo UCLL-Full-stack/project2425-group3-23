@@ -10,10 +10,13 @@ import expressWs from "express-ws";
 import WebsocketService from "./service/websocket.service";
 import {friendRequestRouter} from "./controller/friendRequest.routes";
 import {expressjwt} from "express-jwt";
+import helmet from 'helmet';
 
 const app = expressWs(express()).app;
 dotenv.config();
 const port = process.env.APP_PORT || 3000;
+
+app.use(helmet());
 
 app.use(cors());
 app.use(bodyParser.json());
