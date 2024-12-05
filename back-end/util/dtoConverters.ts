@@ -85,7 +85,7 @@ const prepareUserStrict = (user: User, loggedInUser: User) => {
         user.chats = user.chats.filter((chat) => {
             return chat.users?.some((chatUser) => {
                 return chatUser.username === loggedInUser.username;
-            });
+            }) || loggedInUser.chats?.map((chat) => chat.id).includes(chat.id);
         });
     }
     if (user.friends) {
