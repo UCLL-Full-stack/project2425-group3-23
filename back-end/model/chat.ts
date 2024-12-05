@@ -7,8 +7,8 @@ import {
 } from "@prisma/client";
 
 export class Chat {
-    // Primary Key\
-    private readonly id?: number;
+    // Primary Key
+    private readonly id: number;
 
     // Attributes
     private type: string;
@@ -18,7 +18,7 @@ export class Chat {
     private messages: Message[];
 
     constructor(chat: {
-        id?: number;
+        id: number;
         type: string;
         users: User[];
         messages: Message[];
