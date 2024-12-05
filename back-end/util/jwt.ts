@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import {Request} from "express";
 
 const generateJwtToken = (username : string, role : string ): string => {
     const options = { expiresIn: `${process.env.JWT_EXPIRES_HOURS}h`, issuer: 'cat_chat_app' };
@@ -12,4 +13,20 @@ const generateJwtToken = (username : string, role : string ): string => {
     }
 }
 
-export default generateJwtToken;
+const getUsernameAndRoleFromRequest = (req: Request) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        throw new Error('No token provided');
+    }
+    const token = authHeader.split(' ')[1];
+    const decodedToken = jwt.decode(token);
+    if (!decodedToken) {
+        throw new Error('Invalid token');
+    }
+    return decodedToken as { username: string, role: string };
+}
+
+export default {
+    generateJwtToken,
+    getUsernameAndRoleFromRequest
+};

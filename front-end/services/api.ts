@@ -2,9 +2,9 @@ import {FriendRequest, Message, User, Response} from '../types';
 
 const API_URL = 'http://localhost:3000'; // Sofie...
 
-export const getMessages = async (): Promise<Message[]> => {
+export const getPublicMessages = async (): Promise<Message[]> => {
     try {
-        const response = await fetch(`${API_URL}/messages`);
+        const response = await fetch(`${API_URL}/messages/public-chat`);
         if (!response.ok) {
             const errorResponse: Response = await response.json();
             throw new Error(errorResponse.message);
@@ -18,7 +18,7 @@ export const getMessages = async (): Promise<Message[]> => {
 };
 
 
-export const createMessage = async (
+export const createPublicMessage = async (
     content: string,
     senderUsername: string,
     token: string
@@ -31,7 +31,7 @@ export const createMessage = async (
             throw new Error('Sender is required');
         }
 
-        const response = await fetch(`${API_URL}/messages`, {
+        const response = await fetch(`${API_URL}/messages/public-chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

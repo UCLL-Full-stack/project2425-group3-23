@@ -23,7 +23,7 @@ app.use(
         secret: process.env.JWT_SECRET || 'default_secret',
         algorithms: ['HS256'],
     }).unless({
-        path: ['/api-docs', /^\/api-docs\/.*/, '/users/login', '/users/register', '/status', { url: '/messages', methods: ['GET'] }]
+        path: ['/api-docs', /^\/api-docs\/.*/, '/users/login', '/users/register', '/status', { url: '/messages/public-chat', methods: ['GET'] }]
     }
 ));
 

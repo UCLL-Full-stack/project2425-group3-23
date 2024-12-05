@@ -41,6 +41,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import FriendRequestService from "../service/friendRequest.service";
 import {FriendRequest} from "../types";
 import {prepareFriendRequest} from "../util/dtoConverters";
+import jwtUtils from "../util/jwt";
+import {UnauthorizedError} from "express-jwt";
 
 const friendRequestRouter = express.Router();
 
@@ -64,14 +66,33 @@ const friendRequestRouter = express.Router();
  */
 friendRequestRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const friendRequests = await FriendRequestService.getAllFriendRequests();
+        const { username, role } = jwtUtils.getUsernameAndRoleFromRequest(req);
+        if (role == 'admin') {
+            // Admins can see all friend requests
+            const friendRequests = await FriendRequestService.getAllFriendRequests();
 
-        const data : FriendRequest[] = friendRequests as unknown as FriendRequest[];
-        data.map((friendRequest: FriendRequest) => {
-            prepareFriendRequest(friendRequest);
-        });
+            const data: FriendRequest[] = friendRequests as unknown as FriendRequest[];
+            data.map((friendRequest: FriendRequest) => {
+                prepareFriendRequest(friendRequest);
+            });
 
-        res.status(200).json(data);
+            res.status(200).json(data);
+        } else if (role == 'user') {
+            // User can see only their friend requests
+            const friendRequests = await FriendRequestService.getAllFriendRequests();
+            const userFriendRequests = friendRequests.filter((friendRequest) => {
+                return friendRequest.getSender().getUsername() === username || friendRequest.getReceiver().getUsername() === username;
+            });
+
+            const data: FriendRequest[] = userFriendRequests as unknown as FriendRequest[];
+            data.map((friendRequest: FriendRequest) => {
+                prepareFriendRequest(friendRequest);
+            });
+
+            res.status(200).json(data);
+        } else {
+            throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
+        }
     } catch (error) {
         next(error);
     }
@@ -104,16 +125,37 @@ friendRequestRouter.get('/', async (req: Request, res: Response, next: NextFunct
  */
 friendRequestRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = parseInt(req.params.id);
-        const friendRequest = await FriendRequestService.getFriendRequestById(id);
-        if (!friendRequest) {
-            throw new Error(`Friend request ${id} not found`);
+        const { username: authUsername, role } = jwtUtils.getUsernameAndRoleFromRequest(req);
+        if (role == 'admin') {
+            // Admins can see all friend requests
+            const id = parseInt(req.params.id);
+            const friendRequest = await FriendRequestService.getFriendRequestById(id);
+            if (!friendRequest) {
+                throw new Error(`Friend request ${id} not found`);
+            }
+
+            const data: FriendRequest = friendRequest as unknown as FriendRequest;
+            prepareFriendRequest(data);
+
+            res.status(200).json(friendRequest);
+        } else if (role == 'user') {
+            // User can see only their friend requests
+            const id = parseInt(req.params.id);
+            const friendRequest = await FriendRequestService.getFriendRequestById(id);
+            if (!friendRequest) {
+                throw new Error(`Friend request ${id} not found`);
+            }
+            if (!(friendRequest.getSender().getUsername() === authUsername || friendRequest.getReceiver().getUsername() === authUsername)) {
+                throw new UnauthorizedError('credentials_bad_scheme', {message: 'You did not send or receive this friend request.'});
+            }
+
+            const data: FriendRequest = friendRequest as unknown as FriendRequest;
+            prepareFriendRequest(data);
+
+            res.status(200).json(friendRequest);
+        } else {
+            throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
         }
-
-        const data : FriendRequest = friendRequest as unknown as FriendRequest;
-        prepareFriendRequest(data);
-
-        res.status(200).json(friendRequest);
     } catch (error) {
         next(error);
     }
@@ -134,10 +176,6 @@ friendRequestRouter.get('/:id', async (req: Request, res: Response, next: NextFu
  *           schema:
  *             type: object
  *             properties:
- *               senderUsername:
- *                 type: string
- *                 description: The username of the sender.
- *                 example: JohnDoe
  *               receiverUsername:
  *                 type: string
  *                 description: The username of the receiver.
@@ -150,11 +188,18 @@ friendRequestRouter.get('/:id', async (req: Request, res: Response, next: NextFu
  */
 friendRequestRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const senderUsername = req.body.senderUsername;
-        const receiverUsername = req.body.receiverUsername;
-        await FriendRequestService.sendFriendRequest(senderUsername, receiverUsername);
+        const { username: authUsername, role } = jwtUtils.getUsernameAndRoleFromRequest(req);
+        if (role == 'admin' || role == 'user') {
+            // Users and admins can send friend requests
+            const senderUsername = authUsername;
+            const receiverUsername = req.body.receiverUsername;
 
-        res.status(201).send('Friend request sent.');
+            await FriendRequestService.sendFriendRequest(senderUsername, receiverUsername);
+
+            res.sendStatus(201);
+        } else {
+            throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
+        }
     } catch (error) {
         next(error);
     }
@@ -181,10 +226,26 @@ friendRequestRouter.post('/', async (req: Request, res: Response, next: NextFunc
  */
 friendRequestRouter.put('/:id/accept', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = parseInt(req.params.id);
-        await FriendRequestService.acceptFriendRequest(id);
+        const { username: authUsername, role } = jwtUtils.getUsernameAndRoleFromRequest(req);
+        if (role == 'admin' || role == 'user') {
+            // Users and admins can accept received friend requests
+            const id = parseInt(req.params.id);
 
-        res.sendStatus(200);
+            const friendRequest = await FriendRequestService.getFriendRequestById(id);
+            if (!friendRequest) {
+                throw new Error(`Friend request ${id} not found`);
+            }
+
+            if (friendRequest.getReceiver().getUsername() !== authUsername) {
+                throw new UnauthorizedError('credentials_bad_scheme', { message: 'You did not receive this friend request.' });
+            }
+
+            await FriendRequestService.acceptFriendRequest(id);
+
+            res.sendStatus(200);
+        } else {
+            throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
+        }
     } catch (error) {
         next(error);
     }
@@ -211,10 +272,26 @@ friendRequestRouter.put('/:id/accept', async (req: Request, res: Response, next:
  */
 friendRequestRouter.put('/:id/decline', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = parseInt(req.params.id);
-        await FriendRequestService.declineFriendRequest(id);
+        // Users and admins can decline received friend requests
+        const { username: authUsername, role } = jwtUtils.getUsernameAndRoleFromRequest(req);
+        if (role == 'admin' || role == 'user') {
+            const id = parseInt(req.params.id);
 
-        res.sendStatus(200);
+            const friendRequest = await FriendRequestService.getFriendRequestById(id);
+            if (!friendRequest) {
+                throw new Error(`Friend request ${id} not found`);
+            }
+
+            if (friendRequest.getReceiver().getUsername() !== authUsername) {
+                throw new UnauthorizedError('credentials_bad_scheme', { message: 'You did not receive this friend request.' });
+            }
+
+            await FriendRequestService.declineFriendRequest(id);
+
+            res.sendStatus(200);
+        } else {
+            throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
+        }
     } catch (error) {
         next(error);
     }
