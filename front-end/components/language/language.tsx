@@ -1,8 +1,11 @@
 import { useRouter } from "next/router";
 import {Box, MenuItem, Select, Typography} from "@mui/material";
 import React from "react";
+import {useTranslation} from "next-i18next";
 
 const Language: React.FC = () => {
+  const { t } = useTranslation();
+
   const router = useRouter();
   const { locale, pathname, asPath, query } = router;
 
@@ -25,7 +28,7 @@ const Language: React.FC = () => {
         {
           fontSize: '1.5rem',
         }
-      }>Language</Typography>
+      }>{t("header.language")}</Typography>
       <Select
         id="language"
         value={locale}

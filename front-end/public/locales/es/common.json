@@ -8,7 +8,9 @@
             "home": "Inicio",
             "login": "Conéctese",
             "logout": "Cerrar sesión"
-    }},
+        },
+        "language": "Idioma"
+    },
     "general.error": "Se ha producido un error. Vuelva a intentarlo más tarde.",
     "login": {
         "title": "Inicio de sesión",
@@ -20,6 +22,41 @@
             "password": "Se requiere contraseña"
     },
     "label": { "username": "Nombre de usuario:", "password": "Contraseña:" }
+    },
+    "chat": {
+        "title": "Chat Público",
+        "welcomePublic": "¡Bienvenido al chat público!",
+        "chatWindow": {
+            "placeholder": "Escribe un mensaje...",
+            "send": "Enviar"
+        },
+        "friendsWindow": {
+            "friends": "Amigos",
+            "chat": "Chat",
+            "remove": "Eliminar",
+            "sendFriendRequest": {
+                "title": "Enviar Solicitud de Amistad",
+                "placeholder": "Nombre de usuario del usuario",
+                "send": "Enviar"
+            }
+        },
+        "profileDialog": {
+            "friend": "Amigo",
+            "remove": "Eliminar Amigo",
+            "add": "Agregar Amigo",
+            "received": "¡Solicitud de amistad recibida!",
+            "pending": "Solicitud de amistad pendiente...",
+            "accept": "Aceptar",
+            "decline": "Rechazar",
+            "cancel": "Cancelar",
+            "thisIsYou": "¡Eres tú!"
+        }
+    },
+    "notifications": {
+        "friendRequests": "Solicitudes de Amistad",
+        "noFriendRequests": "No hay solicitudes de amistad",
+        "accept": "Aceptar",
+        "decline": "Rechazar"
     }
 }
     

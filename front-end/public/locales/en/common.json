@@ -8,7 +8,9 @@
             "home": "Home",
             "login": "Login",
             "logout": "Logout"
-    }},
+        },
+        "language": "Language"
+    },
     "general.error": "An error has occurred. Please try again later.",
     "login": {
         "title": "Login",
@@ -20,7 +22,40 @@
             "password": "Password is required"
         },
         "label": { "username": "Username:", "password": "Password:" }
+    },
+    "chat": {
+        "title": "Public Chat",
+        "welcomePublic": "Welcome to the public chat!",
+        "chatWindow": {
+            "placeholder": "Type a message...",
+            "send": "Send"
+        },
+        "friendsWindow": {
+            "friends": "Friends",
+            "chat": "Chat",
+            "remove": "Remove",
+            "sendFriendRequest": {
+                "title": "Send Friend Request",
+                "placeholder": "User's username",
+                "send": "Send"
+            }
+        },
+        "profileDialog": {
+            "friend": "Friend",
+            "remove": "Remove Friend",
+            "add": "Add Friend",
+            "received": "Friend Request Received!",
+            "pending": "Friend Request Pending...",
+            "accept": "Accept",
+            "decline": "Decline",
+            "cancel": "Cancel",
+            "thisIsYou": "This is you!"
+        }
+    },
+    "notifications": {
+        "friendRequests": "Friend Requests",
+        "noFriendRequests": "No friend requests",
+        "accept": "Accept",
+        "decline": "Decline"
     }
-    
-    
 }

@@ -8,7 +8,8 @@
             "home": "Startpagina",
             "login": "Inloggen",
             "logout": "Uitloggen"
-        }
+        },
+        "language": "Taal"
     },
     "general.error": "Er is een fout opgetreden. Probeer het later opnieuw.",
     "login": {
@@ -24,5 +25,40 @@
             "username": "Gebruikersnaam:",
             "password": "Wachtwoord:"
         }
+    },
+    "chat": {
+        "title": "Openbare Chat",
+        "welcomePublic": "Welkom bij de openbare chat!",
+        "chatWindow": {
+            "placeholder": "Typ een bericht...",
+            "send": "Verzenden"
+        },
+        "friendsWindow": {
+            "friends": "Vrienden",
+            "chat": "Chat",
+            "remove": "Verwijderen",
+            "sendFriendRequest": {
+                "title": "Vriendschapsverzoek Versturen",
+                "placeholder": "Gebruikersnaam van gebruiker",
+                "send": "Verzenden"
+            }
+        },
+        "profileDialog": {
+            "friend": "Vriend",
+            "remove": "Verwijder Vriend",
+            "add": "Voeg Vriend Toe",
+            "received": "Vriendschapsverzoek Ontvangen!",
+            "pending": "Vriendschapsverzoek in Afwachting...",
+            "accept": "Accepteren",
+            "decline": "Afwijzen",
+            "cancel": "Annuleren",
+            "thisIsYou": "Dit ben jij!"
+        }
+    },
+    "notifications": {
+        "friendRequests": "Vriendschapsverzoeken",
+        "noFriendRequests": "Geen vriendschapsverzoeken",
+        "accept": "Accepteren",
+        "decline": "Afwijzen"
     }
 }
