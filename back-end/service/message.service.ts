@@ -7,7 +7,7 @@ import {MessageCreateInput} from "../types";
 import {Chat} from "../model/chat";
 import WebsocketService from "./websocket.service";
 
-const getAllMessages = async () => {
+const getAllPublicChatMessages = async () => {
     return messageDb.getAllMessages();
 }
 
@@ -40,7 +40,7 @@ const createMessage = async (messageInput: MessageCreateInput) : Promise<Message
 }
 
 export default {
-    getAllMessages,
+    getAllPublicChatMessages,
     getMessageById,
     createMessage,
 }

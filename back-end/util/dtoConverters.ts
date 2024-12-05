@@ -71,4 +71,40 @@ const prepareFriendRequest = (friendRequest: FriendRequest) => {
     }
 }
 
-export {prepareUser, prepareFriend, prepareMessage, prepareChat, prepareFriendRequest};
+/**
+ * Prepares a User object by removing sensitive information and filtering
+ * the user's chats, friends, and friend requests to only include those
+ * involving the logged-in user.
+ *
+ * @param user - The User object to be prepared.
+ * @param loggedInUser - The currently logged-in User object.
+ */
+const prepareUserStrict = (user: User, loggedInUser: User) => {
+    prepareUser(user);
+    if (user.chats) {
+        user.chats = user.chats.filter((chat) => {
+            return chat.users?.some((chatUser) => {
+                return chatUser.username === loggedInUser.username;
+            });
+        });
+    }
+    if (user.friends) {
+        user.friends = user.friends.filter((friend) => {
+            return friend.username === loggedInUser.username;
+        });
+    }
+    if (user.friendRequests) {
+        user.friendRequests = user.friendRequests.filter((friendRequest) => {
+            return friendRequest.sender?.username === loggedInUser.username;
+        });
+    }
+}
+
+export {
+    prepareUser,
+    prepareFriend,
+    prepareMessage,
+    prepareChat,
+    prepareFriendRequest,
+    prepareUserStrict
+};

@@ -16,10 +16,40 @@ const getFriends = async (username: string) : Promise<User[]> => {
 }
 
 const addFriend = async ({ username, friendUsername }: { username: string, friendUsername: string }) : Promise<void> => {
+    const user = await userDb.getUserByUsername({ username });
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    const friend = await userDb.getUserByUsername({ username: friendUsername });
+    if (!friend) {
+        throw new Error('Friend not found');
+    }
+
+    const isFriend = await userDb.isFriend({ username, friendUsername });
+    if (isFriend) {
+        throw new Error('Users are already friends');
+    }
+
     return userDb.addFriend({ username, friendUsername });
 }
 
 const removeFriend = async ({ username, friendUsername }: { username: string, friendUsername: string }) : Promise<void> => {
+    const user = await userDb.getUserByUsername({ username });
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    const friend = await userDb.getUserByUsername({ username: friendUsername });
+    if (!friend) {
+        throw new Error('Friend not found');
+    }
+
+    const isFriend = await userDb.isFriend({ username, friendUsername });
+    if (!isFriend) {
+        throw new Error('Users are not friends');
+    }
+
     return userDb.removeFriend({ username, friendUsername });
 }
 

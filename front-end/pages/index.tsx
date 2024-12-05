@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import {Message, User} from '@/types';
 import ChatWindow from '../components/chatWindow';
-import {getMessages, getUser} from '@/services/api';
+import {getPublicMessages, getUser} from '@/services/api';
 import {Box, MenuItem, Select, Typography} from "@mui/material";
 import MessageWebSocket from "@/services/messageWebSocket";
 import Header from '@/components/header';
@@ -38,7 +38,7 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         const fetchMessages = async () => {
-            const data = await getMessages();
+            const data = await getPublicMessages();
             setMessages(data);
         };
         fetchMessages();

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {createMessage} from '@/services/api';
+import {createPublicMessage} from '@/services/api';
 import {Box, Button, MenuItem, Select, TextField} from "@mui/material";
 import GenericErrorDialog from "@/components/genericErrorDialog";
 
@@ -34,7 +34,7 @@ const ChatSendBox: React.FC<Props> = ({ senderUsername }) => {
             <Box component="form" sx={{ display: 'flex', alignItems: 'center', gap: '0.5em' }} onSubmit={(event) => {
                 event.preventDefault();
 
-                createMessage(content, senderUsername, token)
+                createPublicMessage(content, senderUsername, token)
                     .then(() => {
                         setContent('');
                     })

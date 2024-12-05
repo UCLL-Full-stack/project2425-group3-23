@@ -75,6 +75,24 @@ const getFriends = async ({ username }: { username: string }) : Promise<User[]> 
     }
 }
 
+const isFriend = async ({ username, friendUsername }: { username: string, friendUsername: string }) : Promise<boolean> => {
+    try {
+        const userPrisma = await database.user.findUnique({
+            where: {
+                username: username
+            },
+            include: {
+                ownsFriends: true
+            }
+        });
+
+        return userPrisma ? userPrisma.ownsFriends.some((user : any) => user.username === friendUsername) : false;
+    } catch (error) {
+        console.log(error);
+        throw new Error('Database error. See server logs for details.');
+    }
+}
+
 const addFriend = async ({ username, friendUsername }: { username: string, friendUsername: string }) : Promise<void> => {
     try {
         // Add the friend to the user's list of friends
@@ -166,7 +184,8 @@ export default {
     getAllUsers,
     getUserByUsername,
     getFriends,
+    isFriend,
     addFriend,
     removeFriend,
-    getFriendRequests
+    getFriendRequests,
 }

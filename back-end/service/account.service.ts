@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import userDb from "../repository/user.db";
 import {AuthenticationResponse} from "../types";
-import generateJwtToken from "../util/jwt";
+import jwtUtils from "../util/jwt";
 import {User} from "../model/user";
 
 const authenticate = async ({ username, password } : { username : string, password: string } ) : Promise<AuthenticationResponse> => {
@@ -21,7 +21,7 @@ const authenticate = async ({ username, password } : { username : string, passwo
     }
 
     return {
-        token: generateJwtToken(username, role),
+        token: jwtUtils.generateJwtToken(username, role),
         username: username,
         role: role
     };
