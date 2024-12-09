@@ -13,14 +13,14 @@ export class FriendRequest {
     private status: string;
 
     // Relationships
-    private sender: User;
-    private receiver: User;
+    private sender?: User;
+    private receiver?: User;
 
     constructor(friendRequest: {
         id: number;
         status: string;
-        sender: User;
-        receiver: User;
+        sender?: User;
+        receiver?: User;
     }) {
         this.validate(friendRequest);
 
@@ -42,7 +42,7 @@ export class FriendRequest {
         this.status = value;
     }
 
-    getSender(): User {
+    getSender(): User | undefined {
         return this.sender;
     }
 
@@ -50,7 +50,7 @@ export class FriendRequest {
         this.sender = value;
     }
 
-    getReceiver(): User {
+    getReceiver(): User | undefined {
         return this.receiver;
     }
 
@@ -58,7 +58,7 @@ export class FriendRequest {
         this.receiver = value;
     }
 
-    validate(friendRequest: { id: number; status: string; sender: User; receiver: User; }) {
+    validate(friendRequest: { id: number; status: string; sender?: User; receiver?: User; }) {
         if (!friendRequest.id) {
             throw new Error('ID is required');
         }
@@ -85,39 +85,15 @@ export class FriendRequest {
         return new FriendRequest({
             id,
             status,
-            sender: !sender ? new User({
+            sender: sender ? User.from(sender) : new User({
                 username: '?',
-                password: 'Password01',
                 role: '?',
-                messages: [],
-                chats: [],
-                friendRequests: [],
-                friends: []
-            }) : new User({
-                username: sender.username,
-                password: sender.password,
-                role: sender.role,
-                messages: [],
-                chats: [],
-                friendRequests: [],
-                friends: []
+                password: 'Password01'
             }),
-            receiver: receiver ? new User({
-                username: receiver.username,
-                password: receiver.password,
-                role: receiver.role,
-                messages: [],
-                chats: [],
-                friendRequests: [],
-                friends: []
-            }) : new User({
+            receiver: receiver ? User.from(receiver) : new User({
                 username: '?',
-                password: 'Password01',
                 role: '?',
-                messages: [],
-                chats: [],
-                friendRequests: [],
-                friends: []
+                password: 'Password01'
             })
         });
     }

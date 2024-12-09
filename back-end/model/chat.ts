@@ -14,8 +14,8 @@ export class Chat {
     private type: string;
 
     // Relationships
-    private users: User[];
-    private messages: Message[];
+    private users?: User[];
+    private messages?: Message[];
 
     constructor(chat: {
         id?: number;
@@ -57,7 +57,7 @@ export class Chat {
         this.type = value;
     }
 
-    getUsers(): User[] {
+    getUsers(): User[] | undefined {
         return this.users;
     }
 
@@ -65,7 +65,7 @@ export class Chat {
         this.users = value;
     }
 
-    getMessages(): Message[] {
+    getMessages(): Message[] | undefined {
         return this.messages;
     }
 
@@ -82,38 +82,8 @@ export class Chat {
         return new Chat({
             id,
             type,
-            users: !users ? [] : users.map((user) => {
-                return new User({
-                    username: user.username,
-                    role: user.role,
-                    password: user.password,
-                    messages: [],
-                    chats: [],
-                    friends: [],
-                    friendRequests: []
-                });
-            }),
-            messages: !messages ? [] : messages.map((message) => {
-                return new Message({
-                    content: message.content,
-                    deleted: message.deleted,
-                    sender: new User({
-                        username: message.senderUsername,
-                        role: "?",
-                        password: "Password01",
-                        messages: [],
-                        chats: [],
-                        friends: [],
-                        friendRequests: []
-                    }),
-                    chat: new Chat({
-                        id: message.chatId,
-                        type: "?",
-                        users: [],
-                        messages: []
-                    })
-                });
-            })
+            users: users ? users.map(user => User.from(user)) : [],
+            messages: messages ? messages.map(message => Message.from(message)) : []
         });
     }
 }

@@ -15,6 +15,10 @@ const getFriends = async (username: string) : Promise<User[]> => {
     return userDb.getFriends({ username });
 }
 
+const isFriends = async ({ username, friendUsername }: { username: string, friendUsername: string }) : Promise<boolean> => {
+    return userDb.isFriend({ username, friendUsername });
+}
+
 const addFriend = async ({ username, friendUsername }: { username: string, friendUsername: string }) : Promise<void> => {
     const user = await userDb.getUserByUsername({ username });
     if (!user) {
@@ -76,6 +80,7 @@ export default {
     getAllUsers,
     getUserByUsername,
     getFriends,
+    isFriends,
     addFriend,
     removeFriend,
     getFriendRequests

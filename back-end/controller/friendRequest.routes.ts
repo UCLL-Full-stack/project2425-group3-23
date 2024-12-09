@@ -81,7 +81,7 @@ friendRequestRouter.get('/', async (req: Request, res: Response, next: NextFunct
             // User can see only their friend requests
             const friendRequests = await FriendRequestService.getAllFriendRequests();
             const userFriendRequests = friendRequests.filter((friendRequest) => {
-                return friendRequest.getSender().getUsername() === username || friendRequest.getReceiver().getUsername() === username;
+                return friendRequest.getSender()?.getUsername() === username || friendRequest.getReceiver()?.getUsername() === username;
             });
 
             const data: FriendRequest[] = userFriendRequests as unknown as FriendRequest[];
@@ -145,7 +145,7 @@ friendRequestRouter.get('/:id', async (req: Request, res: Response, next: NextFu
             if (!friendRequest) {
                 throw new Error(`Friend request ${id} not found`);
             }
-            if (!(friendRequest.getSender().getUsername() === authUsername || friendRequest.getReceiver().getUsername() === authUsername)) {
+            if (!(friendRequest.getSender()?.getUsername() === authUsername || friendRequest.getReceiver()?.getUsername() === authUsername)) {
                 throw new UnauthorizedError('credentials_bad_scheme', {message: 'You did not send or receive this friend request.'});
             }
 
@@ -235,8 +235,7 @@ friendRequestRouter.put('/:id/accept', async (req: Request, res: Response, next:
             if (!friendRequest) {
                 throw new Error(`Friend request ${id} not found`);
             }
-
-            if (friendRequest.getReceiver().getUsername() !== authUsername) {
+            if (friendRequest.getReceiver()?.getUsername() !== authUsername) {
                 throw new UnauthorizedError('credentials_bad_scheme', { message: 'You did not receive this friend request.' });
             }
 
@@ -282,7 +281,7 @@ friendRequestRouter.put('/:id/decline', async (req: Request, res: Response, next
                 throw new Error(`Friend request ${id} not found`);
             }
 
-            if (friendRequest.getReceiver().getUsername() !== authUsername) {
+            if (friendRequest.getReceiver()?.getUsername() !== authUsername) {
                 throw new UnauthorizedError('credentials_bad_scheme', { message: 'You did not receive this friend request.' });
             }
 

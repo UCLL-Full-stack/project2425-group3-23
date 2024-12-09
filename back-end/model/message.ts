@@ -15,15 +15,15 @@ export class Message {
     private deleted: boolean;
 
     // Relationships
-    private sender: User;
-    private chat: Chat;
+    private sender?: User;
+    private chat?: Chat;
 
     constructor(message: {
         id?: number;
         content: string;
         deleted: boolean;
-        sender: User;
-        chat: Chat;
+        sender?: User;
+        chat?: Chat;
     }) {
         this.validate(message);
 
@@ -38,7 +38,7 @@ export class Message {
         this.chat = message.chat;
     }
 
-    validate(message: { content: string, sender: User, chat: Chat }) {
+    validate(message: { content: string, sender?: User, chat?: Chat }) {
         if (!message.content) {
             throw new Error('Content is required');
         }
@@ -70,7 +70,7 @@ export class Message {
         this.deleted = value;
     }
 
-    getSender(): User {
+    getSender(): User | undefined {
         return this.sender;
     }
 
@@ -78,7 +78,7 @@ export class Message {
         this.sender = value;
     }
 
-    getChat(): Chat {
+    getChat(): Chat | undefined {
         return this.chat;
     }
 
@@ -97,34 +97,16 @@ export class Message {
             id,
             content,
             deleted,
-            sender: !sender ? new User({
+            sender: sender ? User.from(sender) : new User({
                 username: '?',
                 role: '?',
-                password: 'Password01',
-                messages: [],
-                chats: [],
-                friends: [],
-                friendRequests: []
-            }) : new User({
-                username: sender.username,
-                role: sender.role,
-                password: sender.password,
-                messages: [],
-                chats: [],
-                friends: [],
-                friendRequests: []
+                password: 'Password01'
             }),
-            chat: !chat ? new Chat({
-                id: 0,
+            chat: chat ? Chat.from(chat) : new Chat({
                 type: '?',
                 users: [],
                 messages: []
-            }) : new Chat({
-                id: chat.id,
-                type: chat.type,
-                users: [],
-                messages: []
-            }),
+            })
         });
     }
 }

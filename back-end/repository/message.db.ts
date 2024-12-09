@@ -38,12 +38,12 @@ const addMessage = async ({ message }: { message: Message }) : Promise<Message> 
                 deleted: message.getDeleted(),
                 sender: {
                     connect: {
-                        username: message.getSender().getUsername()
+                        username: message.getSender()?.getUsername()
                     }
                 },
                 chat: {
                     connect: {
-                        id: message.getChat().getId()
+                        id: message.getChat()?.getId()
                     }
                 }
             },

@@ -21,9 +21,19 @@ const sendFriendRequest = async (senderUsername: string, receiverUsername: strin
         throw new Error("Cannot send friend request to self");
     }
 
-    const existingFriendRequests = await friendRequestDb.getFriendRequestsByUsernames({senderUsername, receiverUsername});
-    if (existingFriendRequests && existingFriendRequests.map(friendRequest => friendRequest.getStatus()).includes("pending")) {
-        throw new Error("Friend request already pending");
+    const isFriends = await UserService.isFriends({ username: senderUsername, friendUsername: receiverUsername });
+    if (isFriends) {
+        throw new Error("Cannot send friend request, users are already friends");
+    }
+
+    const receivedFriendRequests = await friendRequestDb.getFriendRequestsByUsernames({ senderUsername: receiverUsername, receiverUsername: senderUsername });
+    const sentFriendRequests = await friendRequestDb.getFriendRequestsByUsernames({ senderUsername, receiverUsername });
+
+    if (receivedFriendRequests?.some(req => req.getStatus() === 'pending')) {
+        throw new Error("Cannot send friend request, the user has already sent you a pending friend request");
+    }
+    if (sentFriendRequests?.some(req => req.getStatus() === 'pending')) {
+        throw new Error("Cannot send friend request, you have already sent a pending friend request to this user");
     }
 
     await friendRequestDb.createFriendRequest({senderUsername, receiverUsername});
@@ -42,12 +52,14 @@ const acceptFriendRequest = async (id: number) : Promise<void> => {
         throw new Error("Friend request already declined");
     }
 
-    if (friendRequest) {
-        const username = friendRequest.getSender().getUsername();
-        const friendUsername = friendRequest.getReceiver().getUsername();
-        await UserService.addFriend({username, friendUsername});
-        await friendRequestDb.setFriendRequestStatus({ id, status: 'accepted' });
+    const username = friendRequest.getSender()?.getUsername();
+    const friendUsername = friendRequest.getReceiver()?.getUsername();
+    if (!username || !friendUsername) {
+        throw new Error("Friend request sender or receiver not found");
     }
+
+    await UserService.addFriend({username, friendUsername});
+    await friendRequestDb.setFriendRequestStatus({ id, status: 'accepted' });
 }
 
 const declineFriendRequest = async (id: number) : Promise<void> => {

@@ -17,48 +17,31 @@ export class User {
     private password: string;
 
     // Relationships
-    private messages : Message[];
-    private chats : Chat[]; // User's chat
-    private friends : User[]; // User's friends
-    private friendRequests : FriendRequest[]; // User's received friend requests
+    private messages? : Message[];
+    private chats? : Chat[]; // User's chat
+    private friends? : User[]; // User's friends
+    private friendRequests? : FriendRequest[]; // User's received friend requests
 
     constructor(user: {
         username: string;
         role: string;
         password: string;
-        messages: Message[];
-        chats: Chat[];
-        friends: User[];
-        friendRequests: FriendRequest[];
+        messages?: Message[];
+        chats?: Chat[];
+        friends?: User[];
+        friendRequests?: FriendRequest[];
     }) {
         this.validate(user);
-
         this.username = user.username;
         this.role = user.role;
         this.password = user.password;
-        if (user.messages) {
-            this.messages = user.messages;
-        } else {
-            this.messages = [];
-        }
-        if (user.chats) {
-            this.chats = user.chats;
-        } else {
-            this.chats = [];
-        }
-        if (user.friends) {
-            this.friends = user.friends;
-        } else {
-            this.friends = [];
-        }
-        if (user.friendRequests) {
-            this.friendRequests = user.friendRequests;
-        } else {
-            this.friendRequests = [];
-        }
+        this.messages = user.messages;
+        this.chats = user.chats;
+        this.friends = user.friends;
+        this.friendRequests = user.friendRequests;
     }
 
-    validate(user: { username: string; role: string; password: string }) {
+    validate(user: { username: string, role: string, password: string }) {
         if (!user.username) {
             throw new Error('Username is required');
         }
@@ -116,12 +99,12 @@ export class User {
         this.password = value;
     }
 
-    getMessages(): Message[] {
+    getMessages(): Message[] | undefined {
         return this.messages;
     }
 
     addMessage(message: Message) : void {
-        this.messages.push(message);
+        this.messages?.push(message);
     }
 
     setMessages(messages: Message[]) {
@@ -129,11 +112,11 @@ export class User {
     }
 
     getChats(): Chat[] {
-        return this.chats;
+        return this.chats ? this.chats : [];
     }
 
     addChat(chat: Chat) : void {
-        this.chats.push(chat);
+        this.chats?.push(chat);
     }
 
     setChats(chats: Chat[]) {
@@ -141,11 +124,11 @@ export class User {
     }
 
     getFriends(): User[] {
-        return this.friends;
+        return this.friends ? this.friends : [];
     }
 
     addFriend(friend: User) : void {
-        this.friends.push(friend);
+        this.friends?.push(friend);
     }
 
     setFriends(friends: User[]) {
@@ -153,11 +136,11 @@ export class User {
     }
 
     getFriendRequests(): FriendRequest[] {
-        return this.friendRequests;
+        return this.friendRequests ? this.friendRequests : [];
     }
 
     addFriendRequest(friendRequest: FriendRequest) : void {
-        this.friendRequests.push(friendRequest);
+        this.friendRequests?.push(friendRequest);
     }
 
     setFriendRequests(friendRequests: FriendRequest[]) {
@@ -174,74 +157,13 @@ export class User {
         receivedFriendRequests
     } : UserPrisma & { messages?: MessagePrisma[], chats?: ChatPrisma[], ownsFriends?: UserPrisma[], receivedFriendRequests? : FriendRequestPrisma[] }) : User {
         return new User({
-            username: username,
-            role: role,
-            password: password,
-            messages: !messages ? [] : messages.map((message) => {
-                return new Message({
-                    id: message.id,
-                    content: message.content,
-                    deleted: message.deleted,
-                    sender: new User({
-                        username: message.senderUsername,
-                        role: "?",
-                        password: "Password01",
-                        chats: [],
-                        messages: [],
-                        friends: [],
-                        friendRequests: []
-                    }),
-                    chat: new Chat({
-                        id: message.chatId,
-                        type: "?",
-                        users: [],
-                        messages: []
-                    })
-                });
-            }),
-            chats: !chats ? [] : chats.map((chat) => {
-                return new Chat({
-                    id: chat.id,
-                    type: chat.type,
-                    users: [],
-                    messages: []
-                });
-            }),
-            friends: !ownsFriends ? [] : ownsFriends.map((friend) => {
-                return new User({
-                    username: friend.username,
-                    role: friend.role,
-                    password: friend.password,
-                    messages: [],
-                    chats: [],
-                    friends: [],
-                    friendRequests: []
-                });
-            }),
-            friendRequests: !receivedFriendRequests ? [] : receivedFriendRequests.map((friendRequest) => {
-                return new FriendRequest({
-                    id: friendRequest.id,
-                    status: friendRequest.status,
-                    sender: new User({
-                        username: friendRequest.senderUsername,
-                        role: "?",
-                        password: "Password01",
-                        messages: [],
-                        chats: [],
-                        friends: [],
-                        friendRequests: []
-                    }),
-                    receiver: new User({
-                        username: friendRequest.receiverUsername,
-                        role: "?",
-                        password: "Password01",
-                        messages: [],
-                        chats: [],
-                        friends: [],
-                        friendRequests: []
-                    })
-                });
-            })
+            username,
+            role,
+            password,
+            messages: messages ? messages.map((message) => Message.from(message)) : [],
+            chats: chats ? chats.map((chat) => Chat.from(chat)) : [],
+            friends: ownsFriends ? ownsFriends.map((user) => User.from(user)) : [],
+            friendRequests: receivedFriendRequests ? receivedFriendRequests.map((friendRequest) => FriendRequest.from(friendRequest)) : []
         });
     }
 }
