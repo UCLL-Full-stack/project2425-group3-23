@@ -187,7 +187,7 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
                     )}
                 </Box>
             </Dialog>
-            <GenericErrorDialog open={errorDialogOpen} errorMessage={errorDialogMessage} onClose={closeErrorDialog} />
+            {errorDialogOpen && <GenericErrorDialog open={errorDialogOpen} errorMessage={errorDialogMessage} onClose={closeErrorDialog} />}
         </Box>
     )
 }
