@@ -8,11 +8,19 @@ import {Chat} from "../model/chat";
 import WebsocketService from "./websocket.service";
 
 const getAllPublicChatMessages = async () => {
-    return messageDb.getAllMessages();
+    return await messageDb.getAllMessages();
 }
 
 const getMessageById = async (id: number) : Promise<Message | undefined> => {
-    return messageDb.getMessageById(id);
+    return await messageDb.getMessageById(id);
+}
+
+const getAllPublicChatMessagesAdmin = async () => {
+    return await messageDb.getAllMessagesAdmin();
+}
+
+const getMessageByIdAdmin = async (id: number) : Promise<Message | undefined> => {
+    return await messageDb.getMessageByIdAdmin(id);
 }
 
 const createMessage = async (messageInput: MessageCreateInput) : Promise<Message> => {
@@ -39,8 +47,34 @@ const createMessage = async (messageInput: MessageCreateInput) : Promise<Message
     return savedMessage;
 }
 
+const deleteMessage = async (id: number) : Promise<void> => {
+    const message : Message | undefined = await messageDb.getMessageById(id);
+
+    if (!message) {
+        throw new Error('Message not found.');
+    }
+    if (message.getDeleted()) {
+        throw new Error('Message already deleted.');
+    }
+
+    await messageDb.deleteMessage(id);
+}
+
+const permanentlyDeleteMessage = async (id: number) : Promise<void> => {
+    const message : Message | undefined = await messageDb.getMessageByIdAdmin(id);
+    if (!message) {
+        throw new Error('Message not found.');
+    }
+
+    await messageDb.permanentlyDeleteMessage(id);
+}
+
 export default {
     getAllPublicChatMessages,
     getMessageById,
+    getAllPublicChatMessagesAdmin,
+    getMessageByIdAdmin,
     createMessage,
+    deleteMessage,
+    permanentlyDeleteMessage
 }

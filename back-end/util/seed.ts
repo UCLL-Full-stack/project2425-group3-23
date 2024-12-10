@@ -26,6 +26,14 @@ const main = async () => {
         },
     });
 
+    const userAdmin = await prisma.user.create({
+        data: {
+            username: 'Admin',
+            password: await bcrypt.hash('Password01', 12),
+            role: 'admin',
+        },
+    });
+
     const publicChat = await prisma.chat.create({
         data: {
             type: 'public',
@@ -33,6 +41,7 @@ const main = async () => {
                 connect: [
                     { username: userYorick.username },
                     { username: userSofie.username },
+                    { username: userAdmin.username }
                 ],
             },
         },
@@ -67,6 +76,24 @@ const main = async () => {
 
     const yorickChatMember = await prisma.user.update({
         where: { username: userYorick.username },
+        data: {
+            chats: {
+                connect: { id: publicChat.id },
+            },
+        },
+    });
+
+    const chatAdminMember = await prisma.chat.update({
+        where: { id: publicChat.id },
+        data: {
+            users: {
+                connect: { username: userAdmin.username },
+            },
+        },
+    });
+
+    const adminChatMember = await prisma.user.update({
+        where: { username: userAdmin.username },
         data: {
             chats: {
                 connect: { id: publicChat.id },

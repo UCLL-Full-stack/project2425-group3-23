@@ -60,7 +60,7 @@ const ChatSendBox: React.FC<Props> = ({ senderUsername }) => {
                     {t('chat.chatWindow.send')}
                 </Button>
             </Box>
-            <GenericErrorDialog open={errorDialogOpen} onClose={closeErrorDialog} errorMessage={errorDialogMessage} />
+            {errorDialogOpen && <GenericErrorDialog open={errorDialogOpen} onClose={closeErrorDialog} errorMessage={errorDialogMessage} />}
         </>
     );
 }

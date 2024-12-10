@@ -1,29 +1,59 @@
 import React, {useEffect} from 'react';
 import {Message, User} from '@/types';
-import {Avatar, List, ListItem, ListItemText} from "@mui/material";
+import ClearIcon from '@mui/icons-material/Clear';
+import {Avatar, Button, Dialog, List, ListItem, ListItemText, Typography} from "@mui/material";
 import {Box} from "@mui/system";
 import ChatSendBox from "@/components/chatSendBox";
 import ChatProfileDialog from "@/components/chatProfileDialog";
 import ChatFriendsWindow from "@/components/chatFriendsWindow";
+import {deleteMessage} from "@services/api";
+import GenericErrorDialog from "@components/genericErrorDialog";
 
 interface ChatWindowProps {
     messages: Message[];
+    updateMessages: () => void;
     user: User | null;
     updateUser: () => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user, updateUser }) => {
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
-    const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
+    const [chatProfiledialogOpen, setChatProfiledialogOpen] = React.useState<boolean>(false);
+    const [warningDialogOpen, setWarningDialogOpen] = React.useState<boolean>(false);
     const [selectedUserName, setSelectedUserName] = React.useState<string | null>(null);
+    const [selectedMessageId, setSelectedMessageId] = React.useState<number | null>(null);
+    const [error, setError] = React.useState<string | null>('');
+    const [openError, setOpenError] = React.useState<boolean>(false);
+    const [token, setToken] = React.useState<string>('');
+    const [role, setRole] = React.useState<string>('');
+
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+        if (storedUser) {
+            setToken(storedUser.token);
+            setRole(storedUser.role);
+        }
+    }, []);
 
     const handleAvatarClick = (username: string) => {
         setSelectedUserName(username);
-        setDialogOpen(true);
+        setChatProfiledialogOpen(true);
     }
 
-    const handleDialogClose = () => {
-        setDialogOpen(false);
+    const handleDeleteClick = async (messageId: number) => {
+        const message = messages.find(message => message.id === messageId);
+
+        if (!message.deleted) {
+            await deleteMessage(messageId, token)
+            updateMessages();
+        } else {
+            setSelectedMessageId(messageId);
+            setWarningDialogOpen(true);
+        }
+    }
+
+    const handleChatProfileDialogClose = () => {
+        setChatProfiledialogOpen(false);
         setSelectedUserName(null);
     }
 
@@ -58,7 +88,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) =
                     >
                         <List>
                             {messages.map((message: Message) => (
-                                <ListItem key={message.id}>
+                                <ListItem key={message.id} sx={{ bgcolor: message.deleted ? '#FFCCCB' : 'inherit' }}>
                                     {user && message.sender?.username === user.username && (
                                         <>
                                             <Avatar
@@ -74,7 +104,26 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) =
                                                     borderRadius: '0.5em',
                                                 }}
                                             >
-                                                {message.content}
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center'
+                                                    }}
+                                                >
+                                                    {message.content}
+                                                    <ClearIcon
+                                                        sx={{
+                                                            cursor: 'pointer',
+                                                            '&:hover': {
+                                                                color: 'red'
+                                                            },
+                                                            color: message.deleted ? 'red' : 'inherit'
+                                                        }}
+                                                        onClick={async () => {
+                                                            await handleDeleteClick(message.id);
+                                                        }} />
+                                                </Box>
                                             </ListItemText>
                                         </>
                                     )}
@@ -87,7 +136,28 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) =
                                                     borderRadius: '0.5em',
                                                 }}
                                             >
-                                                {message.content}
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center'
+                                                    }}
+                                                >
+                                                    {message.content}
+                                                        {role === 'admin' &&
+                                                        <ClearIcon
+                                                            sx={{
+                                                                cursor: 'pointer',
+                                                                '&:hover': {
+                                                                    color: 'red'
+                                                                },
+                                                                color: message.deleted ? 'red' : 'inherit'
+                                                            }}
+                                                            onClick={async () => {
+                                                                await handleDeleteClick(message.id);
+                                                            }} />
+                                                    }
+                                                </Box>
                                             </ListItemText>
                                             <Avatar
                                                 sx={{ bgcolor: '#FF9933', ml: '0.5em' }}
@@ -107,13 +177,39 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, user, updateUser }) =
                 </Box>
                 {user && <ChatFriendsWindow user={user} updateUser={updateUser} />}
             </Box>
+            <Dialog open={warningDialogOpen} onClose={() => setWarningDialogOpen(false)}>
+                <Box sx={{ p: '1em' }}>
+                    <Typography variant='h4'>Warning ⚠️</Typography>
+                    <Typography variant='body1' sx={{ mt: '1em', mb: '1em' }}>Are you sure you want to <strong>PERMANENTLY</strong> delete this message?</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: '1em' }}>
+                        <Button variant='outlined' onClick={async () => {
+                            setWarningDialogOpen(false);
+                        }}>
+                            Cancel
+                        </Button>
+                        <Button variant='contained' color='error' onClick={async () => {
+                            try {
+                                await deleteMessage(selectedMessageId, token);
+                                updateMessages();
+                            } catch (error) {
+                                setError(error.message);
+                                setOpenError(true);
+                            }
+                            setWarningDialogOpen(false);
+                        }}>
+                            Delete
+                        </Button>
+                    </Box>
+                </Box>
+            </Dialog>
             <ChatProfileDialog
-                user={user}
                 selectedUsername={selectedUserName}
+                user={user}
                 updateUser={updateUser}
-                open={dialogOpen}
-                onClose={handleDialogClose}
+                open={chatProfiledialogOpen}
+                onClose={handleChatProfileDialogClose}
             />
+            {openError && <GenericErrorDialog open={openError} errorMessage={error} onClose={() => setOpenError(false)} />}
         </>
     );
 };
