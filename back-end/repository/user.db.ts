@@ -45,7 +45,11 @@ const getUserByUsername = async ({ username }: { username: string }) : Promise<U
                 messages: true,
                 chats: true,
                 ownsFriends: true,
-                receivedFriendRequests: true
+                receivedFriendRequests: {
+                    include: {
+                        sender: true
+                    }
+                }
             }
         });
         return userPrisma ? User.from(userPrisma) : undefined;

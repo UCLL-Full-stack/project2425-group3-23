@@ -17,6 +17,17 @@ const Home: React.FC = () => {
     const [token, setToken] = useState<string>("");
     const [messages, setMessages] = useState<Message[]>([]);
 
+    const updateMessages = async () => {
+        try {
+            const data = await getPublicMessages(token);
+            data.sort((a, b) => a.id - b.id);
+            setMessages(data);
+        } catch (error) {
+            setMessages([]);
+            console.error(error);
+        }
+    }
+
     const updateUser = async () => {
         try {
             if (!username) {
@@ -38,7 +49,8 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         const fetchMessages = async () => {
-            const data = await getPublicMessages();
+            const data = await getPublicMessages(token);
+            data.sort((a, b) => a.id - b.id);
             setMessages(data);
         };
         fetchMessages();
@@ -51,7 +63,7 @@ const Home: React.FC = () => {
 
         // WebSocket functionality
         MessageWebSocket.getInstance(messages, setMessages);
-    }, []);
+    }, [token]);
 
     useEffect(() => {
         if (username && token) {
@@ -69,7 +81,7 @@ const Home: React.FC = () => {
                 <Typography variant="h3" sx={{ mb: '0.25em', width: '100%', textAlign: 'center' }}>
                     {t("chat.welcomePublic")}
                 </Typography>
-                {<ChatWindow messages={messages} user={user} updateUser={updateUser} />}
+                {<ChatWindow messages={messages} updateMessages={updateMessages} user={user} updateUser={updateUser} />}
             </main>
         </>
     );

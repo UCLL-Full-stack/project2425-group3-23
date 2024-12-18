@@ -65,14 +65,33 @@ const messageRouter = express.Router();
  */
 messageRouter.get('/public-chat', async (req : Request, res : Response, next : NextFunction) => {
     try {
-        const messages = await messageService.getAllPublicChatMessages();
+        let role : string;
+        try {
+            const { role: userRole } = jwtUtils.getUsernameAndRoleFromRequest(req);
+            role = userRole;
+        } catch (error) {
+            role = 'guest';
+        }
 
-        const data : Message[] = messages as unknown as Message[];
-        data.map((message: Message) => {
-            prepareMessage(message);
-        });
+        if (role === 'admin') {
+            const messages = await messageService.getAllPublicChatMessagesAdmin();
 
-        res.status(200).json(data);
+            const data: Message[] = messages as unknown as Message[];
+            data.map((message: Message) => {
+                prepareMessage(message);
+            });
+
+            res.status(200).json(data);
+        } else {
+            const messages = await messageService.getAllPublicChatMessages();
+
+            const data: Message[] = messages as unknown as Message[];
+            data.map((message: Message) => {
+                prepareMessage(message);
+            });
+
+            res.status(200).json(data);
+        }
     } catch (error) {
         next(error);
     }
@@ -105,7 +124,7 @@ messageRouter.get('/:id', async (req : Request, res : Response, next : NextFunct
         const { username: authUsername, role } = jwtUtils.getUsernameAndRoleFromRequest(req);
         if (role === 'admin') {
             const id: number = parseInt(req.params.id);
-            const message = await messageService.getMessageById(id);
+            const message = await messageService.getMessageByIdAdmin(id);
             if (!message) {
                 throw new Error('Message not found.');
             }
@@ -126,7 +145,7 @@ messageRouter.get('/:id', async (req : Request, res : Response, next : NextFunct
                 throw new Error('Message not found.');
             }
 
-            if (!authUser.getChats().map(chat => chat.getId()).includes(message.getChat().getId())) {
+            if (!authUser.getChats().map(chat => chat.getId()).includes(message.getChat()?.getId())) {
                 throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
             }
 
@@ -188,6 +207,69 @@ messageRouter.post('/public-chat', async (req : Request, res : Response, next : 
             res.status(200).json(data);
         } else {
             throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
+        }
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * @swagger
+ * /messages/{id}:
+ *   delete:
+ *     summary: Delete a message by ID.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The message ID.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: The message was successfully deleted.
+ */
+messageRouter.delete('/:id', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const {username: authUsername, role} = jwtUtils.getUsernameAndRoleFromRequest(req);
+        if (role === 'admin') {
+            const message = await messageService.getMessageByIdAdmin(parseInt(req.params.id));
+            if (!message) {
+                throw new Error('Message not found.');
+            }
+
+            if (!message.getDeleted()) {
+                await messageService.deleteMessage(parseInt(req.params.id));
+            } else {
+                await messageService.permanentlyDeleteMessage(parseInt(req.params.id));
+            }
+
+            res.status(200).json({message: 'Message successfully deleted.'});
+        } else if (role === 'user') {
+            const id: number = parseInt(req.params.id);
+            const user = await userService.getUserByUsername(authUsername);
+            if (!user) {
+                throw new Error('User not found.');
+            }
+
+            const message = await messageService.getMessageById(id);
+            if (!message) {
+                throw new Error('Message not found.');
+            }
+            if (message.getSender()?.getUsername() !== authUsername) {
+                throw new UnauthorizedError('credentials_bad_scheme', {message: 'You may only delete your own messages.'});
+            }
+            if (message.getDeleted()) {
+                throw new Error('Message already deleted.');
+            }
+
+            await messageService.deleteMessage(id);
+
+            res.status(200).json({message: 'Message successfully deleted.'});
+        } else {
+            throw new UnauthorizedError('credentials_bad_scheme', {message: 'You do not have the required role to access this content.'})
         }
     } catch (error) {
         next(error);

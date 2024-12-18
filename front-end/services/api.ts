@@ -2,9 +2,15 @@ import {FriendRequest, Message, User, Response} from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export const getPublicMessages = async (): Promise<Message[]> => {
+export const getPublicMessages = async (
+    token?: string
+): Promise<Message[]> => {
     try {
-        const response = await fetch(`${API_URL}/messages/public-chat`);
+        const response = await fetch(`${API_URL}/messages/public-chat`, {
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : ''
+            }
+        });
         if (!response.ok) {
             const errorResponse: Response = await response.json();
             throw new Error(errorResponse.message);
@@ -56,6 +62,24 @@ export const createPublicMessage = async (
         throw error;
     }
 };
+
+export const deleteMessage = async (id: number, token: string): Promise<void> => {
+    try {
+        const response = await fetch(`${API_URL}/messages/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
+        }
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        throw error;
+    }
+}
 
 export const getUser = async (username: string, token: string): Promise<User> => {
     try {
