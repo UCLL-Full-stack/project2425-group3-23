@@ -125,6 +125,19 @@ const main = async () => {
         },
     });
 
+    const deletedMessage = await prisma.message.create({
+        data: {
+            content: 'Only cool people can see this message. 😎',
+            sender: {
+                connect: { username: userAdmin.username },
+            },
+            deleted: true,
+            chat: {
+                connect: { id: publicChat.id },
+            },
+        },
+    });
+
     const friendRequest = await prisma.friendRequest.create({
         data: {
             status: 'accepted',

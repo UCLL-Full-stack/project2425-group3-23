@@ -20,6 +20,7 @@ const Home: React.FC = () => {
     const updateMessages = async () => {
         try {
             const data = await getPublicMessages(token);
+            data.sort((a, b) => a.id - b.id);
             setMessages(data);
         } catch (error) {
             setMessages([]);
@@ -49,6 +50,7 @@ const Home: React.FC = () => {
     useEffect(() => {
         const fetchMessages = async () => {
             const data = await getPublicMessages(token);
+            data.sort((a, b) => a.id - b.id);
             setMessages(data);
         };
         fetchMessages();
