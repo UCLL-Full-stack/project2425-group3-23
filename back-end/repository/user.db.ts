@@ -2,9 +2,7 @@ import {User} from "../model/user";
 import database from "./database";
 import {FriendRequest} from "../model/friendRequest";
 import bcrypt from "bcrypt";
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
 
 const addUser = async ({ user } : { user: User }) : Promise<void> => {
     try {
@@ -188,7 +186,7 @@ const getFriendRequests = async ({ username }: { username: string }) : Promise<F
 
 const updateUser = async ({ user }: { user: User }) => {
     try {
-        await prisma.user.update({
+        await database.user.update({
             where: { username: user.getUsername() },
             data: {
                 isBanned: user.isUserBanned(),
@@ -200,7 +198,6 @@ const updateUser = async ({ user }: { user: User }) => {
     }
 };
 
-console.log(prisma.user);
 
 
 export default {
