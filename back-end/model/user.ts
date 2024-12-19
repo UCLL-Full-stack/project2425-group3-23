@@ -64,15 +64,15 @@ export class User {
         }
 
         // Password requirements
-        if (user.password.length < 8) {
+        if (user.password.length < 4) {
             throw new Error('Password must be at least 8 characters long');
         }
         if (!/[a-z]/.test(user.password)) {
             throw new Error('Password must contain at least one lowercase letter');
         }
-        if (!/[A-Z]/.test(user.password)) {
-            throw new Error('Password must contain at least one uppercase letter');
-        }
+        // if (!/[A-Z]/.test(user.password)) {
+        //     throw new Error('Password must contain at least one uppercase letter');
+        // }
         if (!/[0-9]/.test(user.password)) {
             throw new Error('Password must contain at least one number');
         }

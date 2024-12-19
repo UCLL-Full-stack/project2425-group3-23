@@ -431,5 +431,51 @@ userRouter.get('/:username/friend-requests', async (req : Request, res : Respons
         next(error);
     }
 });
+/**
+ * @swagger
+ * /users/{username}/ban:
+ *   post:
+ *     summary: Ban a user
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         description: The username of the user to ban.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: The user was banned successfully
+ *       404:
+ *         description: The user was not found
+ *       403:
+ *         description: You do not have permission to ban this user
+ */
+userRouter.post('/:username/ban', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const { username: authUsername, role } = jwtUtil.getUsernameAndRoleFromRequest(req);
+        if (role !== "admin") {
+            throw new UnauthorizedError( 'credentials_bad_scheme', { message: 'You do not have permission to ban users.' });
+        }
+
+        const username : string = req.params.username;
+        const user = await userService.getUserByUsername(username);
+
+        if (!user) {
+            throw new Error(`User ${username} not found`);
+        }
+
+        // Ban the user
+        await accountService.banUser({ username });
+
+        res.status(204).end();
+    } catch (error) {
+        next(error);
+    }
+});
+
+
 
 export { userRouter };
