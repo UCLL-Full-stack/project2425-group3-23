@@ -2,6 +2,9 @@ import {User} from "../model/user";
 import database from "./database";
 import {FriendRequest} from "../model/friendRequest";
 import bcrypt from "bcrypt";
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const addUser = async ({ user } : { user: User }) : Promise<void> => {
     try {
@@ -183,6 +186,23 @@ const getFriendRequests = async ({ username }: { username: string }) : Promise<F
     }
 }
 
+const updateUser = async ({ user }: { user: User }) => {
+    try {
+        await prisma.user.update({
+            where: { username: user.getUsername() },
+            data: {
+                isBanned: user.isUserBanned(),
+            },
+        });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        throw new Error("Failed to update user.");
+    }
+};
+
+console.log(prisma.user);
+
+
 export default {
     addUser,
     getAllUsers,
@@ -192,4 +212,5 @@ export default {
     addFriend,
     removeFriend,
     getFriendRequests,
+    updateUser,
 }

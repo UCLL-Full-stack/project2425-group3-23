@@ -15,6 +15,7 @@ export class User {
     // Attributes
     private role: string;
     private password: string;
+    private isBanned: boolean;
 
     // Relationships
     private messages? : Message[];
@@ -30,6 +31,7 @@ export class User {
         chats?: Chat[];
         friends?: User[];
         friendRequests?: FriendRequest[];
+        isBanned?: boolean;
     }) {
         this.validate(user);
         this.username = user.username;
@@ -39,6 +41,7 @@ export class User {
         this.chats = user.chats;
         this.friends = user.friends;
         this.friendRequests = user.friendRequests;
+        this.isBanned = user.isBanned || false;
     }
 
     validate(user: { username: string, role: string, password: string }) {
@@ -145,6 +148,14 @@ export class User {
 
     setFriendRequests(friendRequests: FriendRequest[]) {
         this.friendRequests = friendRequests;
+    }
+
+    isUserBanned(): boolean {
+        return this.isBanned;
+    }
+
+    setBanned(value: boolean): void{
+        this.isBanned = value;
     }
 
     static from({

@@ -20,6 +20,7 @@ model Message {
 model User {
   username               String          @id
   role                   String
+  isBanned               Boolean @default(false)
   password               String
   messages               Message[]
   chats                  Chat[]
