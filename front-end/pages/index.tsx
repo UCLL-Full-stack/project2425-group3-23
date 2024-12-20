@@ -1,7 +1,8 @@
 import React, {useEffect} from 'react';
 import Head from 'next/head';
 import ChatWindow from '../components/chatWindow';
-import {getPublicMessages, getUser} from '@/services/api';
+import {getPublicMessages} from '@services/messageService';
+import {getUser} from '@services/userService';
 import {Typography} from "@mui/material";
 import MessageWebSocket from "@/services/messageWebSocket";
 import Header from '@/components/header';

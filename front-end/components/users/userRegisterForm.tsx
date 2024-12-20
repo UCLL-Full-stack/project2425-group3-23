@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import UserService from "@/services/userService";
+import AccountService from "@services/accountService";
 import { Button, TextField, Typography, Box } from "@mui/material";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
@@ -21,7 +21,7 @@ const UserRegisterForm: React.FC = () => {
 
     try {
       const user = { username, password };
-      const response = await UserService.registerUser(user);
+      const response = await AccountService.registerUser(user);
 
       if (!response.ok) {
         const data = await response.json();

@@ -3,7 +3,7 @@ import { AppBar, Toolbar, Button, Box, Typography } from '@mui/material';
 import { useTranslation } from "next-i18next";
 import { User } from '@/types';
 import Language from './language/language';
-import {getUser} from "@services/api";
+import {getUser} from "@services/userService";
 import useSWR, {mutate} from "swr";
 import { useRouter } from 'next/router';
 

@@ -34,7 +34,13 @@
         "privateChatNotFriends": "Je bent geen vrienden met deze gebruiker. Doorverwijzen naar de startpagina...",
         "chatWindow": {
             "placeholder": "Typ een bericht...",
-            "send": "Verzenden"
+            "send": "Verzenden",
+            "deleteDialog": {
+                "warning": "Waarschuwing",
+                "message": "Weet je zeker dat je dit bericht **permanent** wilt verwijderen?",
+                "cancel": "Annuleren",
+                "delete": "Verwijderen"
+            }
         },
         "friendsWindow": {
             "friends": "Vrienden",

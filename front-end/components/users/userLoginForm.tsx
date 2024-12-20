@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import UserService from "@/services/userService"; 
+import AccountService from "@services/accountService";
 import { useRouter } from "next/router";
 import { Button, TextField, Typography, Box } from "@mui/material";
 import { useTranslation } from "next-i18next";
@@ -22,7 +22,7 @@ const UserLoginForm: React.FC = () => {
     const handleLogin = async () => {
         try {
             const user = { username, password };
-            const response = await UserService.loginUser(user);
+            const response = await AccountService.loginUser(user);
 
             if (!response.ok) {
                 const data = await response.json();

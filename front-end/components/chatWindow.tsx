@@ -6,8 +6,9 @@ import {Box} from "@mui/system";
 import ChatSendBox from "@/components/chatSendBox";
 import ChatProfileDialog from "@/components/chatProfileDialog";
 import ChatFriendsWindow from "@/components/chatFriendsWindow";
-import {deleteMessage} from "@services/api";
+import {deleteMessage} from "@services/messageService";
 import GenericErrorDialog from "@components/genericErrorDialog";
+import {useTranslation} from "next-i18next";
 
 type ChatWindowProps = {
     messages: Message[];
@@ -18,6 +19,7 @@ type ChatWindowProps = {
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user, updateUser, chatPartnerUsername }) => {
+    const { t } = useTranslation();
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
     const [chatProfiledialogOpen, setChatProfiledialogOpen] = React.useState<boolean>(false);
     const [warningDialogOpen, setWarningDialogOpen] = React.useState<boolean>(false);
@@ -67,6 +69,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user,
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    const formatMessage = (message: string) => {
+        return message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    };
 
     return (
         <>
@@ -180,13 +186,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user,
             </Box>
             <Dialog open={warningDialogOpen} onClose={() => setWarningDialogOpen(false)}>
                 <Box sx={{ p: '1em' }}>
-                    <Typography variant='h4'>Warning ⚠️</Typography>
-                    <Typography variant='body1' sx={{ mt: '1em', mb: '1em' }}>Are you sure you want to <strong>PERMANENTLY</strong> delete this message?</Typography>
+                    <Typography variant='h4'>{t("chat.chatWindow.deleteDialog.warning")} ⚠️</Typography>
+                    <Typography variant='body1' sx={{ mt: '1em', mb: '1em' }} dangerouslySetInnerHTML={{ __html: formatMessage(t("chat.chatWindow.deleteDialog.message")) }} />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: '1em' }}>
                         <Button variant='outlined' onClick={async () => {
                             setWarningDialogOpen(false);
                         }}>
-                            Cancel
+                            {t("chat.chatWindow.deleteDialog.cancel")}
                         </Button>
                         <Button variant='contained' color='error' onClick={async () => {
                             try {
@@ -198,7 +204,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user,
                             }
                             setWarningDialogOpen(false);
                         }}>
-                            Delete
+                            {t("chat.chatWindow.deleteDialog.delete")}
                         </Button>
                     </Box>
                 </Box>

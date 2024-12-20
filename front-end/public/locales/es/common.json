@@ -31,7 +31,13 @@
         "privateChatNotFriends": "No eres amigo de este usuario. Redirigiendo a la página de inicio...",
         "chatWindow": {
             "placeholder": "Escribe un mensaje...",
-            "send": "Enviar"
+            "send": "Enviar",
+            "deleteDialog": {
+                "warning": "Advertencia",
+                "message": "¿Estás seguro de que deseas eliminar este mensaje **permanentemente**?",
+                "cancel": "Cancelar",
+                "delete": "Eliminar"
+            }
         },
         "friendsWindow": {
             "friends": "Amigos",

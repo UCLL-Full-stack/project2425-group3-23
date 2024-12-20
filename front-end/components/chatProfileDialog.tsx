@@ -8,7 +8,7 @@ import {
     getUser,
     removeFriend,
     sendFriendRequest
-} from "@/services/api";
+} from "@services/userService";
 import {useTranslation} from "next-i18next";
 import useSWR, {mutate} from "swr";
 import GenericErrorDialog from "@components/genericErrorDialog";

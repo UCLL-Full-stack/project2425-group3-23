@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {createPrivateMessage, createPublicMessage} from '@/services/api';
+import {createPrivateMessage, createPublicMessage} from '@services/messageService';
 import {Box, Button, TextField} from "@mui/material";
 import GenericErrorDialog from "@/components/genericErrorDialog";
 import {useTranslation} from "next-i18next";
