@@ -15,15 +15,16 @@ const generateJwtToken = (username : string, role : string ): string => {
 
 const getUsernameAndRoleFromRequest = (req: Request) => {
     const authHeader = req.headers.authorization;
-    if (!authHeader) {
-        throw new Error('No token provided');
+    if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        const decodedToken = jwt.decode(token);
+        if (!decodedToken) {
+            throw new Error('Invalid token');
+        }
+        return decodedToken as { username: string, role: string };
+    } else {
+        return { username: 'guest', role: 'guest' };
     }
-    const token = authHeader.split(' ')[1];
-    const decodedToken = jwt.decode(token);
-    if (!decodedToken) {
-        throw new Error('Invalid token');
-    }
-    return decodedToken as { username: string, role: string };
 }
 
 export default {

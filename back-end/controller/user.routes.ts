@@ -98,7 +98,9 @@ const userRouter = express.Router();
 userRouter.post('/login', async (req : Request, res : Response, next : NextFunction) => {
     try {
         const { username, password } = req.body;
+
         const authenticationResponse = await accountService.authenticate({username, password});
+
         res.status(200).json(authenticationResponse);
     } catch (error) {
         next(error);
@@ -125,6 +127,7 @@ userRouter.post('/register', async (req : Request, res : Response, next : NextFu
         const { username, password } = req.body;
 
         await accountService.register({username, password});
+
         res.status(201).end();
     } catch (error) {
         next(error);
@@ -150,21 +153,11 @@ userRouter.post('/register', async (req : Request, res : Response, next : NextFu
  */
 userRouter.get('/', async (req : Request, res : Response, next : NextFunction) => {
     try {
-        const { username: authUsername, role } = jwtUtil.getUsernameAndRoleFromRequest(req);
-        if (role == 'admin') {
-            // Admin can see all users
-            const users = await userService.getAllUsers();
+        const authUser = jwtUtil.getUsernameAndRoleFromRequest(req);
 
-            const data: User[] = users as unknown as User[];
-            data.map((user: User) => {
-                prepareUser(user);
-            });
+        const users = await userService.authGetAllUsers(authUser)
 
-            res.status(200).json(data);
-        } else {
-            // Unauthorized
-            throw new UnauthorizedError( 'credentials_bad_scheme', { message: 'You cannot view all users, please use /users/{username} instead.' });
-        }
+        res.status(200).json(users);
     } catch (error) {
         next(error);
     }
@@ -196,44 +189,12 @@ userRouter.get('/', async (req : Request, res : Response, next : NextFunction) =
  */
 userRouter.get('/:username', async (req : Request, res : Response, next : NextFunction) => {
     try {
-        const { username: authUsername, role } = jwtUtil.getUsernameAndRoleFromRequest(req);
-        if (role == "admin") {
-            // Admin can see all users
-            const username: string = req.params.username;
-            const user = await userService.getUserByUsername(username);
-            if (!user) {
-                throw new Error(`User ${username} not found`);
-            }
+        const username = req.params.username;
+        const authUser = jwtUtil.getUsernameAndRoleFromRequest(req);
 
-            const data: User = user as unknown as User;
-            prepareUser(data);
+        const user = await userService.authGetUserByUsername(authUser, username);
 
-            res.status(200).json(data);
-        } else if (role == "user") {
-            // Normal users can see all users
-            const username: string = req.params.username;
-            const user = await userService.getUserByUsername(username);
-            if (!user) {
-                throw new Error(`User ${username} not found`);
-            }
-
-            const authUser = await userService.getUserByUsername(authUsername);
-            if (!authUser) {
-                throw new Error(`User ${authUsername} not found`);
-            }
-
-            const data: User = user as unknown as User;
-            if (username !== authUsername) {
-                prepareUserStrict(data, authUser as unknown as User); // But only their username and role
-            } else {
-                prepareUser(data); // And if it's themselves, show everything
-            }
-
-            res.status(200).json(data);
-        } else {
-            // Unauthorized
-            throw new UnauthorizedError( 'credentials_bad_scheme', { message: 'You do not have the required role to access this content.' });
-        }
+        res.status(200).json(user);
     } catch (error) {
         next(error);
     }
@@ -267,50 +228,12 @@ userRouter.get('/:username', async (req : Request, res : Response, next : NextFu
  */
 userRouter.get('/:username/friends', async (req : Request, res : Response, next : NextFunction) => {
     try {
-        const { username: authUsername, role } = jwtUtil.getUsernameAndRoleFromRequest(req);
-        if (role == "admin") {
-            // Admin can see everyone's friends
-            const username: string = req.params.username;
-            const user = await userService.getUserByUsername(username);
-            if (!user) {
-                throw new Error(`User ${username} not found`);
-            }
+        const username = req.params.username;
+        const authUser = jwtUtil.getUsernameAndRoleFromRequest(req);
 
-            const friends = await userService.getFriends(username);
+        const friends = await userService.authGetFriends(authUser, username);
 
-            const data = friends as unknown as User[];
-            data.map((user: User) => {
-                prepareFriend(user);
-            });
-
-            res.status(200).json(data);
-        } else if (role == "user") {
-            // Normal user can only see their friends
-            const username: string = req.params.username;
-            const user = await userService.getUserByUsername(username);
-
-            if (!user) {
-                throw new Error(`User ${username} not found`);
-            }
-            if (username !== authUsername) {
-                // Unauthorized
-                throw new UnauthorizedError( 'credentials_bad_scheme', { message: 'You cannot view another user\'s friends.' });
-            }
-
-            const authUser = await userService.getUserByUsername(authUsername);
-            if (!authUser) {
-                throw new Error(`User ${authUsername} not found`);
-            }
-
-            const friends = await userService.getFriends(username);
-
-            const data = friends as unknown as User[];
-            data.map((user: User) => {
-                prepareUserStrict(user, authUser as unknown as User);
-            });
-
-            res.status(200).json(data);
-        }
+        res.status(200).json(friends);
     } catch (error) {
         next(error);
     }
@@ -344,17 +267,13 @@ userRouter.get('/:username/friends', async (req : Request, res : Response, next 
  */
 userRouter.delete('/:username/friends/:friendUsername', async (req : Request, res : Response, next : NextFunction) => {
     try {
-        const { username, role } = jwtUtil.getUsernameAndRoleFromRequest(req);
+        const username = req.params.username;
+        const friendUsername = req.params.friendUsername;
+        const authUser = jwtUtil.getUsernameAndRoleFromRequest(req);
 
-        if (role == "admin" || role == "user") {
-            // Users and admins can remove their own friends
-            const friendUsername : string = req.params.friendUsername;
-            await userService.removeFriend({username, friendUsername});
-            res.status(204).end();
-        } else {
-            // Unauthorized
-            throw new UnauthorizedError( 'credentials_bad_scheme', { message: 'You do not have the required role to access this content.' });
-        }
+        await userService.authRemoveFriend(authUser, username, friendUsername);
+
+        res.status(204).end();
     } catch (error) {
         next(error);
     }
@@ -388,45 +307,12 @@ userRouter.delete('/:username/friends/:friendUsername', async (req : Request, re
  */
 userRouter.get('/:username/friend-requests', async (req : Request, res : Response, next : NextFunction) => {
     try {
-        const { username: authUsername, role } = jwtUtil.getUsernameAndRoleFromRequest(req);
-        if (role == "admin") {
-            // Admin can see everyone's friend requests
-            const username : string = req.params.username;
-            const friendRequests = await userService.getFriendRequests({username});
+        const username = req.params.username;
+        const authUser = jwtUtil.getUsernameAndRoleFromRequest(req);
 
-            if (!friendRequests) {
-                throw new Error(`User ${username} not found`);
-            }
+        const friendRequests = await userService.authGetFriendRequests(authUser, username);
 
-            const data = friendRequests as unknown as FriendRequest[];
-            data.map((friendRequest: FriendRequest) => {
-                prepareFriendRequest(friendRequest);
-            });
-
-            res.status(200).json(data);
-        } else if (role == "user") {
-            // Normal user can only see their friend requests
-            const username : string = req.params.username;
-            if (username !== authUsername) {
-                // Unauthorized
-                throw new UnauthorizedError( 'credentials_bad_scheme', { message: 'You cannot view another user\'s friend requests.' });
-            }
-            const friendRequests = await userService.getFriendRequests({username});
-
-            if (!friendRequests) {
-                throw new Error(`User ${username} not found`);
-            }
-
-            const data = friendRequests as unknown as FriendRequest[];
-            data.map((friendRequest: FriendRequest) => {
-                prepareFriendRequest(friendRequest);
-            });
-
-            res.status(200).json(data);
-        } else {
-            // Unauthorized
-            throw new UnauthorizedError( 'credentials_bad_scheme', { message: 'You do not have the required role to access this content.' });
-        }
+        res.status(200).json(friendRequests);
     } catch (error) {
         next(error);
     }
@@ -455,14 +341,10 @@ userRouter.get('/:username/friend-requests', async (req : Request, res : Respons
  */
 userRouter.post('/:username/ban', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { username: adminUsername, role } = jwtUtil.getUsernameAndRoleFromRequest(req);
+        const username = req.params.username;
+        const authUser = jwtUtil.getUsernameAndRoleFromRequest(req);
 
-        if (role !== "admin") {
-            return res.status(403).json({ message: 'You do not have permission to ban users.' });
-        }
-
-        const targetUsername : string = req.params.username as string;
-        await accountService.banUser({ adminUsername, targetUsername });
+        await userService.authBanUser(authUser, username);
 
         res.status(204).end();
     } catch (error) {
