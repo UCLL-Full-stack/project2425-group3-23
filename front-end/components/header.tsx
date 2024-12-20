@@ -91,6 +91,11 @@ const Header: React.FC = () => {
               {t('header.nav.chat', 'Public Chat')}
             </Button>
           </Link>
+          <Link href="/register" passHref>
+            <Button sx={{ color: 'white', textTransform: 'none' }}>
+              {t('header.nav.register')}
+            </Button>
+          </Link>
           {!loggedInUser ? (
             <Link href="/login" passHref>
               <Button sx={{ color: 'white', textTransform: 'none' }}>

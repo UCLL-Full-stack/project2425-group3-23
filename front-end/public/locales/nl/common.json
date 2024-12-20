@@ -7,7 +7,8 @@
         "nav": {
             "home": "Startpagina",
             "login": "Inloggen",
-            "logout": "Uitloggen"
+            "logout": "Uitloggen",
+            "register": "Registreren"
         },
         "language": "Taal"
     },
