@@ -21,7 +21,7 @@ export class Message {
     constructor(message: {
         id?: number;
         content: string;
-        deleted: boolean;
+        deleted?: boolean;
         sender?: User;
         chat?: Chat;
     }) {

@@ -1,8 +1,7 @@
 import bcrypt from "bcrypt";
-import userDb from "../repository/user.db";
-import jwtUtils from "../util/jwt";
-import { User } from "../model/user";
-import accountService from "../service/account.service";
+import userDb from "../../repository/user.db";
+import { User } from "../../model/user";
+import accountService from "../../service/account.service";
 
 jest.mock("../repository/user.db");
 jest.mock("../util/jwt");

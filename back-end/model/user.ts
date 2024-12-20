@@ -26,18 +26,30 @@ export class User {
         username: string;
         role: string;
         password: string;
+        isBanned?: boolean;
         messages?: Message[];
         friends?: User[];
         friendRequests?: FriendRequest[];
-        isBanned?: boolean;
     }) {
         this.validate(user);
         this.username = user.username;
         this.role = user.role;
         this.password = user.password;
-        this.messages = user.messages;
-        this.friends = user.friends;
-        this.friendRequests = user.friendRequests;
+        if (user.messages) {
+            this.messages = user.messages;
+        } else {
+            this.messages = [];
+        }
+        if (user.friends) {
+            this.friends = user.friends;
+        } else {
+            this.friends = [];
+        }
+        if (user.friendRequests) {
+            this.friendRequests = user.friendRequests;
+        } else {
+            this.friendRequests = [];
+        }
         this.isBanned = user.isBanned || false;
     }
 

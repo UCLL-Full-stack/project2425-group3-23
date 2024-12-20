@@ -7,7 +7,7 @@ import {Chat} from "./chat";
 
 export class FriendRequest {
     // Primary Key
-    private id: number;
+    private id?: number;
 
     // Attributes
     private status: string;
@@ -17,20 +17,24 @@ export class FriendRequest {
     private receiver?: User;
 
     constructor(friendRequest: {
-        id: number;
-        status: string;
+        id?: number;
+        status?: string;
         sender?: User;
         receiver?: User;
     }) {
         this.validate(friendRequest);
 
         this.id = friendRequest.id;
-        this.status = friendRequest.status;
+        if (friendRequest.status) {
+            this.status = friendRequest.status;
+        } else {
+            this.status = "pending";
+        }
         this.sender = friendRequest.sender;
         this.receiver = friendRequest.receiver;
     }
 
-    getId(): number {
+    getId(): number | undefined {
         return this.id;
     }
 
@@ -58,13 +62,7 @@ export class FriendRequest {
         this.receiver = value;
     }
 
-    validate(friendRequest: { id: number; status: string; sender?: User; receiver?: User; }) {
-        if (!friendRequest.id) {
-            throw new Error('ID is required');
-        }
-        if (!friendRequest.status) {
-            throw new Error('Status is required');
-        }
+    validate(friendRequest: { sender?: User; receiver?: User; }) {
         if (!friendRequest.sender) {
             throw new Error('Sender is required');
         }
