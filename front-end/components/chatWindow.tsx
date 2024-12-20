@@ -9,7 +9,7 @@ import ChatFriendsWindow from "@/components/chatFriendsWindow";
 import {deleteMessage} from "@services/api";
 import GenericErrorDialog from "@components/genericErrorDialog";
 
-interface ChatWindowProps {
+type ChatWindowProps = {
     messages: Message[];
     updateMessages: () => void;
     user: User | null;
