@@ -63,6 +63,77 @@ export const createPublicMessage = async (
     }
 };
 
+export const getPrivateMessages = async (senderUsername : string, chatPartnerUsername : string, token : string): Promise<Message[]> => {
+    try {
+        if (!senderUsername) {
+            throw new Error('Sender is required');
+        }
+        if (!chatPartnerUsername) {
+            throw new Error('Chat partner is required');
+        }
+        if (!token) {
+            throw new Error('Token is required');
+        }
+
+        const response = await fetch(`${API_URL}/messages/private-chat/${chatPartnerUsername}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
+        }
+
+        const data: Message[] = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching messages:', error);
+        throw error;
+    }
+};
+
+export const createPrivateMessage = async (content: string, senderUsername: string, receiverUsername: string, token: string): Promise<Message> => {
+    try {
+        if (!content) {
+            throw new Error('Content is required');
+        }
+        if (!senderUsername) {
+            throw new Error('Sender is required');
+        }
+        if (!receiverUsername) {
+            throw new Error('Receiver is required');
+        }
+        if (!token) {
+            throw new Error('Token is required');
+        }
+
+        const response = await fetch(`${API_URL}/messages/private-chat/${receiverUsername}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                content,
+                deleted: false,
+                sender: { username: senderUsername } as User,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorResponse: Response = await response.json();
+            throw new Error(errorResponse.message);
+        }
+
+        const data: Message = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error creating message:', error);
+        throw error;
+    }
+}
+
 export const deleteMessage = async (id: number, token: string): Promise<void> => {
     try {
         const response = await fetch(`${API_URL}/messages/${id}`, {
@@ -213,16 +284,17 @@ export const removeFriend = async (username: string, friendUsername: string, tok
 }
 
 export async function banUser(username: string, token: string): Promise<void> {
-    const response = await fetch(`/api/users/ban`, {
-        method: 'POST', 
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, 
-        },
-        body: JSON.stringify({ username }), 
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to ban user');
+    try {
+        await fetch(`${API_URL}/users/${username}/ban`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({username}),
+        });
+    } catch (error) {
+        console.error('Error banning user:', error);
+        throw error;
     }
 }

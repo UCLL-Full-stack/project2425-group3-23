@@ -141,6 +141,7 @@ export class User {
         role,
         password,
         messages,
+        isBanned,
         ownsFriends,
         receivedFriendRequests
     } : UserPrisma & { messages?: MessagePrisma[], ownsFriends?: UserPrisma[], receivedFriendRequests? : FriendRequestPrisma[] }) : User {
@@ -148,6 +149,7 @@ export class User {
             username,
             role,
             password,
+            isBanned,
             messages: messages ? messages.map((message) => Message.from(message)) : [],
             friends: ownsFriends ? ownsFriends.map((user) => User.from(user)) : [],
             friendRequests: receivedFriendRequests ? receivedFriendRequests.map((friendRequest) => FriendRequest.from(friendRequest)) : []

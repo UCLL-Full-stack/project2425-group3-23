@@ -184,21 +184,21 @@ const getFriendRequests = async ({ username }: { username: string }) : Promise<F
     }
 }
 
-const updateUser = async ({ user }: { user: User }) => {
+const banUser = async (targetUsername : string) : Promise<void> => {
     try {
         await database.user.update({
-            where: { username: user.getUsername() },
-            data: {
-                isBanned: user.isUserBanned(),
+            where: {
+                username: targetUsername
             },
+            data: {
+                isBanned: true
+            }
         });
     } catch (error) {
-        console.error("Error updating user:", error);
-        throw new Error("Failed to update user.");
+        console.log(error);
+        throw new Error('Database error. See server logs for details.');
     }
-};
-
-
+}
 
 export default {
     addUser,
@@ -209,5 +209,5 @@ export default {
     addFriend,
     removeFriend,
     getFriendRequests,
-    updateUser,
+    banUser
 }

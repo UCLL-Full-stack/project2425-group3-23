@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {createPublicMessage} from '@/services/api';
+import {createPrivateMessage, createPublicMessage} from '@/services/api';
 import {Box, Button, TextField} from "@mui/material";
 import GenericErrorDialog from "@/components/genericErrorDialog";
 import {useTranslation} from "next-i18next";
 
 type Props = {
     senderUsername: string;
+    chatPartnerUsername?: string;
 }
 
-const ChatSendBox: React.FC<Props> = ({ senderUsername }) => {
+const ChatSendBox: React.FC<Props> = ({ senderUsername, chatPartnerUsername }) => {
     const { t } = useTranslation();
 
     const [content, setContent] = useState<string>('');
@@ -37,13 +38,23 @@ const ChatSendBox: React.FC<Props> = ({ senderUsername }) => {
             <Box component="form" sx={{ display: 'flex', alignItems: 'center', gap: '0.5em' }} onSubmit={(event) => {
                 event.preventDefault();
 
-                createPublicMessage(content, senderUsername, token)
-                    .then(() => {
-                        setContent('');
-                    })
-                    .catch((error) => {
-                        openErrorDialog(error.message);
-                    });
+                if (!chatPartnerUsername) {
+                    createPublicMessage(content, senderUsername, token)
+                        .then(() => {
+                            setContent('');
+                        })
+                        .catch((error) => {
+                            openErrorDialog(error.message);
+                        });
+                } else {
+                    createPrivateMessage(content, senderUsername, chatPartnerUsername, token)
+                        .then(() => {
+                            setContent('');
+                        })
+                        .catch((error) => {
+                            openErrorDialog(error.message);
+                        });
+                }
             }}>
                 <TextField
                     sx={{ flexGrow: 1 }}

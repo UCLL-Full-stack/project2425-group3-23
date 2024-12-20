@@ -6,7 +6,6 @@ const getAllChats = async (): Promise<Chat[]> => {
         const chatsPrisma = await database.chat.findMany({ include: { messages: true } });
         return chatsPrisma.map((chat: any) => Chat.from(chat));
     } catch (error) {
-        console.log(error);
         throw new Error('Database error. See server logs for details.');
     }
 }
@@ -27,7 +26,48 @@ const getPublicChat = async (): Promise<Chat> => {
 
         return Chat.from(chatPrisma);
     } catch (error) {
-        console.log(error);
+        throw new Error('Database error. See server logs for details.');
+    }
+}
+
+const getPrivateChat = async (user1: string, user2: string): Promise<Chat> => {
+    try {
+        const chatPrisma = await database.chat.findFirst({
+            where: {
+                type: "private",
+                users: {
+                    some: {
+                        username: user1 || user2
+                    }
+                }
+            },
+            include: { messages: true, users: true }
+        });
+
+        if (!chatPrisma) {
+            throw new Error('Chat not found.');
+        }
+
+        return Chat.from(chatPrisma);
+    } catch (error) {
+        throw new Error('Database error. See server logs for details.');
+    }
+}
+
+const createPrivateChat = async (user1: string, user2: string): Promise<Chat> => {
+    try {
+        const chatPrisma = await database.chat.create({
+            data: {
+                type: "private",
+                users: {
+                    connect: [{ username: user1 }, { username: user2 }]
+                }
+            },
+            include: { messages: true, users: true }
+        });
+
+        return Chat.from(chatPrisma);
+    } catch (error) {
         throw new Error('Database error. See server logs for details.');
     }
 }
@@ -35,4 +75,6 @@ const getPublicChat = async (): Promise<Chat> => {
 export default {
     getAllChats,
     getPublicChat,
+    getPrivateChat,
+    createPrivateChat
 }

@@ -461,8 +461,7 @@ userRouter.post('/:username/ban', async (req: Request, res: Response, next: Next
             return res.status(403).json({ message: 'You do not have permission to ban users.' });
         }
 
-        const targetUsername: string = req.params.username;
-
+        const targetUsername : string = req.params.username as string;
         await accountService.banUser({ adminUsername, targetUsername });
 
         res.status(204).end();
