@@ -45,6 +45,7 @@ import {MessageCreateInput} from "../types";
 import jwtUtils from "../util/jwt";
 import userService from "../service/user.service";
 import {UnauthorizedError} from "express-jwt";
+import {ca} from "date-fns/locale";
 
 const messageRouter = express.Router();
 
@@ -91,6 +92,78 @@ messageRouter.get('/public-chat', async (req : Request, res : Response, next : N
             });
 
             res.status(200).json(data);
+        }
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * @swagger
+ * /messages/private-chat/{username}:
+ *   get:
+ *     summary: Get a list of all messages in a private chat.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         description: The username of the other user in the chat.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: A list of messages.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Message'
+ */
+messageRouter.get('/private-chat/:username', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const friendUsername = req.params.username as string;
+        const { username: authUsername, role } = jwtUtils.getUsernameAndRoleFromRequest(req);
+        if (role === 'admin') {
+            const user = await userService.getUserByUsername(req.params.username);
+            if (!user) {
+                throw new Error('User not found.');
+            }
+            const friends = user.getFriends();
+            if (!friends.map(f => f.getUsername()).includes(friendUsername)) {
+                throw new Error('You are not friends with this user.');
+            }
+
+            const messages = await messageService.getAllPrivateChatMessagesAdmin(authUsername, req.params.username);
+
+            const data: Message[] = messages as unknown as Message[];
+            data.map((message: Message) => {
+                prepareMessage(message);
+            });
+
+            res.status(200).json(data);
+        } else if (role === 'user') {
+            const user = await userService.getUserByUsername(authUsername);
+            if (!user) {
+                throw new Error('User not found.');
+            }
+            const friends = user.getFriends();
+            if (!friends.map(f => f.getUsername()).includes(friendUsername)) {
+                throw new Error('You are not friends with this user.');
+            }
+
+            const messages = await messageService.getAllPrivateChatMessages(authUsername, req.params.username);
+
+            const data: Message[] = messages as unknown as Message[];
+            data.map((message: Message) => {
+                prepareMessage(message);
+            });
+
+            res.status(200).json(data);
+        } else {
+            throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
         }
     } catch (error) {
         next(error);
@@ -206,6 +279,64 @@ messageRouter.post('/public-chat', async (req : Request, res : Response, next : 
             prepareMessage(data);
 
             res.status(200).json(data);
+        } else {
+            throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
+        }
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * @swagger
+ * /messages/private-chat/{username}:
+ *   post:
+ *     summary: Add a new message to a private chat.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         description: The username of the other user in the chat.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: The message content.
+ *                 example: Hello, world!
+ *               sender:
+ *                 type: object
+ *                 description: The user who sent the message.
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                     description: The username of the sender.
+ *                     example: JohnDoe
+ *     responses:
+ *       200:
+ *         description: The message was successfully added.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ */
+messageRouter.post('/private-chat/:username', async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const { username: authUsername, role } = jwtUtils.getUsernameAndRoleFromRequest(req);
+        if (role === 'admin' || role === 'user') {
+            let messageInput: MessageCreateInput = req.body;
+            messageInput.sender = { username: authUsername }
+            await messageService.createMessage(messageInput, req.params.username);
+
+            res.status(200).json({ message: 'Message successfully added.' });
         } else {
             throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
         }

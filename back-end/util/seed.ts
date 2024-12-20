@@ -153,6 +153,48 @@ const main = async () => {
         },
     });
 
+    const yorickSofieChat = await prisma.chat.create({
+        data: {
+            type: 'private',
+            users: {
+                connect: [
+                    { username: userYorick.username },
+                    { username: userSofie.username },
+                ],
+            },
+        },
+    });
+
+    const yorickSofieChatMember = await prisma.chat.update({
+        where: { id: yorickSofieChat.id },
+        data: {
+            users: {
+                connect: { username: userYorick.username },
+            },
+        },
+    });
+
+    const sofieYorickChatMember = await prisma.chat.update({
+        where: { id: yorickSofieChat.id },
+        data: {
+            users: {
+                connect: { username: userSofie.username },
+            },
+        },
+    });
+
+    const yorickSofieChatMessage = await prisma.message.create({
+        data: {
+            content: 'Hi Sofie! 😊',
+            sender: {
+                connect: { username: userYorick.username },
+            },
+            chat: {
+                connect: { id: yorickSofieChat.id },
+            },
+        },
+    });
+
     const firstMessage = await prisma.message.create({
         data: {
             content: 'Hello, world! 🤖',

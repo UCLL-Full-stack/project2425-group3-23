@@ -12,6 +12,7 @@ import GenericErrorDialog from "@/components/genericErrorDialog";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import {useTranslation} from "next-i18next";
 import useSWR, { mutate } from "swr";
+import {useRouter} from "next/router";
 
 type ChatFriendsWindowProps = {
     user: User;
@@ -20,6 +21,7 @@ type ChatFriendsWindowProps = {
 
 const ChatFriendsWindow: React.FC<ChatFriendsWindowProps> = ({ user, updateUser }) => {
     const { t } = useTranslation();
+    const router = useRouter();
     const [friendUsername, setFriendUsername] = React.useState('');
     const [errorDialogOpen, setErrorDialogOpen] = React.useState(false);
     const [errorDialogMessage, setErrorDialogMessage] = React.useState('');
@@ -60,6 +62,10 @@ const ChatFriendsWindow: React.FC<ChatFriendsWindowProps> = ({ user, updateUser 
         setFriendUsername('');
     };
 
+    function handleFriendPrivateChat(friendUsername: string) {
+        router.push(`/private/${friendUsername}`);
+    }
+
     return (
         <Box sx={{
             width: '25%',
@@ -95,7 +101,7 @@ const ChatFriendsWindow: React.FC<ChatFriendsWindowProps> = ({ user, updateUser 
                     }}>
                         <Typography variant='h6'>{friend.username}</Typography>
                         <Box sx={{ display: 'flex', gap: '0.5em' }}>
-                            <Button variant='contained' color='info'>{t("chat.friendsWindow.chat")}</Button>
+                            <Button variant='contained' color='info' onClick={() => handleFriendPrivateChat(friend.username)}>{t("chat.friendsWindow.chat")}</Button>
                             <Button variant='contained' color='error' onClick={() => handleFriendAction(removeFriend, user.username, friend.username, token)}>{t("chat.friendsWindow.remove")}</Button>
                         </Box>
                     </Box>

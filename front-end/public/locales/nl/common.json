@@ -30,6 +30,8 @@
     "chat": {
         "title": "Openbare Chat",
         "welcomePublic": "Welkom bij de openbare chat!",
+        "privateChatWith": "Privé chat met ",
+        "privateChatNotFriends": "Je bent geen vrienden met deze gebruiker. Doorverwijzen naar de startpagina...",
         "chatWindow": {
             "placeholder": "Typ een bericht...",
             "send": "Verzenden"
