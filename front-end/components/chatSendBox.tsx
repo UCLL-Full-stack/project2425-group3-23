@@ -33,10 +33,27 @@ const ChatSendBox: React.FC<Props> = ({ senderUsername, chatPartnerUsername }) =
         setErrorDialogOpen(false);
     }
 
+    const validateMessage = (message: string) => {
+        if (message === '') {
+            openErrorDialog(t('chat.chatWindow.messageEmpty'));
+            return false;
+        }
+        if (message.length > 1000) {
+            openErrorDialog(t('chat.chatWindow.messageTooLong'));
+            return false;
+        }
+
+        return true;
+    }
+
     return (
         <>
             <Box component="form" sx={{ display: 'flex', alignItems: 'center', gap: '0.5em' }} onSubmit={(event) => {
                 event.preventDefault();
+
+                if (!validateMessage(content)) {
+                    return;
+                }
 
                 if (!chatPartnerUsername) {
                     createPublicMessage(content, senderUsername, token)

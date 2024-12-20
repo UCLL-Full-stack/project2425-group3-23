@@ -118,7 +118,7 @@ const ChatFriendsWindow: React.FC<ChatFriendsWindowProps> = ({ user, updateUser 
                         fullWidth
                         placeholder={t("chat.friendsWindow.sendFriendRequest.placeholder")}
                         value={friendUsername}
-                        onChange={(event) => setFriendUsername(event.target.value)}
+                        onChange={(event) => setFriendUsername(event.target.value.slice(0, 20))}
                     />
                     <Button
                         variant='contained'

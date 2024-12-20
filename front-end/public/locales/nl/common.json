@@ -40,7 +40,9 @@
                 "message": "Weet je zeker dat je dit bericht **permanent** wilt verwijderen?",
                 "cancel": "Annuleren",
                 "delete": "Verwijderen"
-            }
+            },
+            "messageEmpty": "Bericht mag niet leeg zijn.",
+            "messageTooLong": "Bericht is te lang. Maximaal 1000 tekens."
         },
         "friendsWindow": {
             "friends": "Vrienden",
