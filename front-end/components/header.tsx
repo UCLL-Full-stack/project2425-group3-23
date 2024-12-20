@@ -89,16 +89,16 @@ const Header: React.FC = () => {
               {t('header.nav.home')}
             </Button>
           </Link>
-          <Link href="/chat" passHref>
-            <Button sx={{ color: 'white', textTransform: 'none' }}>
-              {t('header.nav.chat', 'Public Chat')}
-            </Button>
-          </Link>
-          <Link href="/register" passHref>
+          {/*<Link href="/chat" passHref>*/}
+          {/*  <Button sx={{ color: 'white', textTransform: 'none' }}>*/}
+          {/*    {t('header.nav.chat', 'Public Chat')}*/}
+          {/*  </Button>*/}
+          {/*</Link>*/}
+          {!loggedInUser && <Link href="/register" passHref>
             <Button sx={{ color: 'white', textTransform: 'none' }}>
               {t('header.nav.register')}
             </Button>
-          </Link>
+          </Link>}
           {!loggedInUser ? (
             <Link href="/login" passHref>
               <Button sx={{ color: 'white', textTransform: 'none' }}>
@@ -113,7 +113,6 @@ const Header: React.FC = () => {
               <Typography sx={{ color: 'white', fontSize: '0.9rem' }}>
                 {t('header.welcome')}, {loggedInUser.username}!
               </Typography>
-
             </>
           )}
         </Box>
