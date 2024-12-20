@@ -2,6 +2,10 @@
     "errors": {
         "unauthorized": "Unauthorized access. Please log in again."
     },
+    "guest": {
+        "registerToSendMessages": "Register to send messages!",
+        "registerToGetFriends": "Register to add friends!"
+    },
     "header": {
         "welcome": "Welcome",
         "nav": {
@@ -16,6 +20,7 @@
     "login": {
         "title": "Login",
         "button": "Login",
+        "guest": "Guest",
         "failed": "Failed to log in.",
         "success": "Login succesful. Redirecting to homepage...",
         "validate": {
@@ -73,17 +78,17 @@
         "decline": "Decline"
     },
     "register": {
-    "title": "Register",
-    "label": {
-      "username": "Username",
-      "password": "Password",
-      "confirmPassword": "Confirm Password"
-    },
-    "button": "Register",
-    "success": "Registration successful! Redirecting to login...",
-    "error": {
-      "passwordMismatch": "Passwords do not match",
-      "failed": "Registration failed. Please try again."
+        "title": "Register",
+        "label": {
+            "username": "Username",
+            "password": "Password",
+            "confirmPassword": "Confirm Password"
+        },
+        "button": "Register",
+        "success": "Registration successful! Redirecting to login...",
+        "error": {
+            "passwordMismatch": "Passwords do not match",
+            "failed": "Registration failed. Please try again."
+        }
     }
-  }
 }

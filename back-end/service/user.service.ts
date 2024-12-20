@@ -114,7 +114,7 @@ const authGetUserByUsername = async (authUser: { username: string, role: string 
         prepareUser(data);
 
         return data;
-    } else if (authUser.role == "user") {
+    } else if (authUser.role == "user" || authUser.role == "guest") {
         // Normal users can see all users
         const user = await userDb.getUserByUsername({ username });
         if (!user) {

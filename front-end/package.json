@@ -12,6 +12,7 @@
     "@mui/icons-material": "^6.1.8",
     "@mui/material": "^6.1.9",
     "@types/react": "18.0.28",
+    "@uiw/react-color-wheel": "^2.3.4",
     "bootstrap": "5.2.3",
     "classnames": "^2.3.2",
     "dayjs": "^1.11.7",

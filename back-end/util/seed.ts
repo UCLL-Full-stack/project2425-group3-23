@@ -50,6 +50,14 @@ const main = async () => {
         },
     });
 
+    const userGuest = await prisma.user.create({
+        data: {
+            username: 'Guest',
+            password: await bcrypt.hash('', 12),
+            role: 'guest',
+        },
+    });
+
     const publicChat = await prisma.chat.create({
         data: {
             type: 'public',
@@ -58,6 +66,7 @@ const main = async () => {
                     { username: userYorick.username },
                     { username: userSofie.username },
                     { username: userAdmin.username },
+                    { username: userGuest.username },
                     { username: user1.username },
                     { username: user2.username },
                 ],

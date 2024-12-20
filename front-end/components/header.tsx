@@ -6,10 +6,19 @@ import Language from './language/language';
 import {getUser} from "@services/userService";
 import useSWR, {mutate} from "swr";
 import { useRouter } from 'next/router';
+import {useEffect, useState} from 'react';
 
 const Header: React.FC = () => {
   const { t } = useTranslation();
+  const [role, setRole] = useState<string>('');
   const router = useRouter();
+
+    useEffect(() => {
+      const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+      if (storedUser) {
+      setRole(storedUser.role);
+      }
+    }, []);
 
   const fetcher = async () => {
     // Fetch the user from the local storage
@@ -94,7 +103,7 @@ const Header: React.FC = () => {
           {/*    {t('header.nav.chat', 'Public Chat')}*/}
           {/*  </Button>*/}
           {/*</Link>*/}
-          {!loggedInUser && <Link href="/register" passHref>
+          {!loggedInUser || role === 'guest' && <Link href="/register" passHref>
             <Button sx={{ color: 'white', textTransform: 'none' }}>
               {t('header.nav.register')}
             </Button>

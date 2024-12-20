@@ -29,6 +29,9 @@ const UserRegisterForm: React.FC = () => {
         return;
       }
 
+      // Remove stored user
+      localStorage.removeItem("loggedInUser"); // In case guest was logged in
+
       setSuccessMessage(t("register.success"));
       setTimeout(() => router.push("/login"), 2000); // Redirect to login after success
     } catch (error) {

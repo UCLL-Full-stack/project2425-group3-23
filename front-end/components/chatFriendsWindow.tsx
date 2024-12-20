@@ -7,7 +7,7 @@ import {
     removeFriend,
     sendFriendRequest
 } from "@services/userService";
-import React from "react";
+import React, {useEffect} from "react";
 import GenericErrorDialog from "@/components/genericErrorDialog";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import {useTranslation} from "next-i18next";
@@ -26,9 +26,16 @@ const ChatFriendsWindow: React.FC<ChatFriendsWindowProps> = ({ user, updateUser 
     const [errorDialogOpen, setErrorDialogOpen] = React.useState(false);
     const [errorDialogMessage, setErrorDialogMessage] = React.useState('');
     const [friendRequestsDialogOpen, setFriendRequestsDialogOpen] = React.useState(false);
+    const [token, setToken] = React.useState<string>('');
+    const [role, setRole] = React.useState<string>('');
 
-    const storedUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    const token = storedUser?.token;
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+        if (storedUser) {
+            setToken(storedUser.token);
+            setRole(storedUser.role);
+        }
+    }, []);
 
     const fetcher = async () => {
         return getFriendRequests(user.username, token).then(friendRequests => friendRequests.filter(friendRequest => friendRequest.status === 'pending'));
@@ -116,15 +123,17 @@ const ChatFriendsWindow: React.FC<ChatFriendsWindowProps> = ({ user, updateUser 
                 }}>
                     <TextField
                         fullWidth
-                        placeholder={t("chat.friendsWindow.sendFriendRequest.placeholder")}
+                        placeholder={t(role !== 'guest' ? "chat.friendsWindow.sendFriendRequest.placeholder" : "guest.registerToGetFriends")}
                         value={friendUsername}
                         onChange={(event) => setFriendUsername(event.target.value.slice(0, 20))}
+                        disabled={role === 'guest'}
                     />
                     <Button
                         variant='contained'
                         color='primary'
                         onClick={sendFriendRequestClick}
                         sx={{ height: '4em', width: '8em' }}
+                        disabled={role === 'guest'}
                     >
                         {t("chat.friendsWindow.sendFriendRequest.send")}
                     </Button>

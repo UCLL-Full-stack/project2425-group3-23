@@ -2,6 +2,10 @@
     "errors": {
         "unauthorized": "Geen toegang. Log opnieuw in alstublieft."
     },
+    "guest": {
+        "registerToSendMessages": "Registreer om berichten te versturen!",
+        "registerToGetFriends": "Registreer om vrienden toe te voegen!"
+    },
     "header": {
         "welcome": "Welkom",
         "nav": {
@@ -16,6 +20,7 @@
     "login": {
         "title": "Inloggen",
         "button": "Inloggen",
+        "guest": "Gast",
         "failed": "Inloggen mislukt.",
         "success": "Succesvol ingelogd. Doorsturen naar de startpagina...",
         "validate": {
@@ -76,17 +81,17 @@
         "decline": "Afwijzen"
     },
     "register": {
-    "title": "Registreren",
-    "label": {
-      "username": "Gebruikersnaam",
-      "password": "Wachtwoord",
-      "confirmPassword": "Bevestig wachtwoord"
-    },
-    "button": "Registreren",
-    "success": "Registratie succesvol! Doorverwijzen naar inloggen...",
-    "error": {
-      "passwordMismatch": "Wachtwoorden komen niet overeen",
-      "failed": "Registratie mislukt. Probeer het opnieuw."
+        "title": "Registreren",
+        "label": {
+            "username": "Gebruikersnaam",
+            "password": "Wachtwoord",
+            "confirmPassword": "Bevestig wachtwoord"
+        },
+        "button": "Registreren",
+        "success": "Registratie succesvol! Doorverwijzen naar inloggen...",
+        "error": {
+            "passwordMismatch": "Wachtwoorden komen niet overeen",
+            "failed": "Registratie mislukt. Probeer het opnieuw."
+        }
     }
-  }
 }

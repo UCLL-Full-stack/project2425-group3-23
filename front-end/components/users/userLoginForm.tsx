@@ -19,22 +19,36 @@ const UserLoginForm: React.FC = () => {
         }
     }, []);
 
+    const performLogin = async (user : { username, password }) => {
+        const response = await AccountService.loginUser(user);
+
+        if (!response.ok) {
+            const data = await response.json();
+            setErrorMessage(data.message || t('login.failed'));
+            return;
+        }
+
+        const data = await response.json();
+        localStorage.setItem("loggedInUser", JSON.stringify(data));
+        await mutate('user'); // Update the user data
+
+        router.push("/");
+    }
+
+    const handleLoginGuest = async () => {
+        try {
+            const user = { username: "Guest", password: "" };
+            await performLogin(user);
+        } catch (error) {
+            console.error("Login error:", error);
+            setErrorMessage(t('login.error'));
+        }
+    }
+
     const handleLogin = async () => {
         try {
             const user = { username, password };
-            const response = await AccountService.loginUser(user);
-
-            if (!response.ok) {
-                const data = await response.json();
-                setErrorMessage(data.message || t('login.failed'));
-                return;
-            }
-
-            const data = await response.json();
-            localStorage.setItem("loggedInUser", JSON.stringify(data));
-            await mutate('user'); // Update the user data
-
-            router.push("/");
+            await performLogin(user);
         } catch (error) {
             console.error("Login error:", error);
             setErrorMessage(t('login.error'));
@@ -70,7 +84,10 @@ const UserLoginForm: React.FC = () => {
                 variant="outlined"
                 fullWidth
             />
-            <Box display="flex" justifyContent="flex-end" width="100%">
+            <Box display="flex" justifyContent="space-between" width="100%">
+                <Button variant="contained" color="secondary" onClick={handleLoginGuest}>
+                    {t('login.guest')}
+                </Button>
                 <Button variant="contained" color="primary" onClick={handleLogin}>
                     {t('login.button')}
                 </Button>

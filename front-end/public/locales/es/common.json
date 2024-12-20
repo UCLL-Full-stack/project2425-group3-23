@@ -2,6 +2,10 @@
     "errors": {
         "unauthorized": "Acceso no autorizado. Por favor, inicie sesión nuevamente."
     },
+    "guest": {
+        "registerToSendMessages": "¡Regístrate para enviar mensajes!",
+        "registerToGetFriends": "¡Regístrate para agregar amigos!"
+    },
     "header": {
         "welcome": "Bienvenido",
         "nav": {
@@ -16,6 +20,7 @@
     "login": {
         "title": "Inicio de sesión",
         "button": "Conéctese",
+        "guest": "Invitado",
         "failed": "Error al iniciar sesión.",
         "success": "Inicio de sesión exitoso. Redirigiendo a la página de inicio...",
         "validate": {
@@ -74,18 +79,18 @@
         "decline": "Rechazar"
     },
     "register": {
-    "title": "Registrar",
-    "label": {
-      "username": "Nombre de usuario",
-      "password": "Contraseña",
-      "confirmPassword": "Confirmar contraseña"
-    },
-    "button": "Registrar",
-    "success": "¡Registro exitoso! Redirigiendo al inicio de sesión...",
-    "error": {
-      "passwordMismatch": "Las contraseñas no coinciden",
-      "failed": "El registro falló. Por favor, inténtelo de nuevo."
+        "title": "Registrar",
+        "label": {
+            "username": "Nombre de usuario",
+            "password": "Contraseña",
+            "confirmPassword": "Confirmar contraseña"
+        },
+        "button": "Registrar",
+        "success": "¡Registro exitoso! Redirigiendo al inicio de sesión...",
+        "error": {
+            "passwordMismatch": "Las contraseñas no coinciden",
+            "failed": "El registro falló. Por favor, inténtelo de nuevo."
+        }
     }
-  }
 }
     

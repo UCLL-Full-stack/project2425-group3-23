@@ -15,12 +15,14 @@ const ChatSendBox: React.FC<Props> = ({ senderUsername, chatPartnerUsername }) =
     const [content, setContent] = useState<string>('');
     const [errorDialogOpen, setErrorDialogOpen] = React.useState(false);
     const [errorDialogMessage, setErrorDialogMessage] = React.useState('');
-    const [token, setToken] = useState<string>('');
+    const [token, setToken] = React.useState<string>('');
+    const [role, setRole] = React.useState<string>('');
 
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
         if (storedUser) {
             setToken(storedUser.token);
+            setRole(storedUser.role);
         }
     }, []);
 
@@ -75,15 +77,17 @@ const ChatSendBox: React.FC<Props> = ({ senderUsername, chatPartnerUsername }) =
             }}>
                 <TextField
                     sx={{ flexGrow: 1 }}
-                    placeholder={t('chat.chatWindow.placeholder')}
+                    placeholder={role !== 'guest' ? t('chat.chatWindow.placeholder') : t('guest.registerToSendMessages')}
                     value={content}
                     onChange={(event) => setContent(event.target.value)}
                     className="flex-1 bg-[#2c2f33] text-white placeholder-gray-500 p-3 rounded-lg outline-none border border-[#3a3f45] focus:border-[#7289da]"
+                    disabled={role === 'guest'}
                 />
                 <Button
                     variant="contained"
                     type="submit"
                     sx={{ flexShrink: 0, height: '4em', width: '7.5em' }}
+                    disabled={role === 'guest'}
                 >
                     {t('chat.chatWindow.send')}
                 </Button>
