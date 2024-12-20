@@ -14,9 +14,10 @@ interface ChatWindowProps {
     updateMessages: () => void;
     user: User | null;
     updateUser: () => void;
+    chatPartnerUsername?: string;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user, updateUser }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user, updateUser, chatPartnerUsername }) => {
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
     const [chatProfiledialogOpen, setChatProfiledialogOpen] = React.useState<boolean>(false);
     const [warningDialogOpen, setWarningDialogOpen] = React.useState<boolean>(false);
@@ -173,7 +174,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user,
                             <div ref={messagesEndRef}></div>
                         </List>
                     </Box>
-                    {user && <ChatSendBox senderUsername={user.username} />}
+                    {user && <ChatSendBox senderUsername={user.username} chatPartnerUsername={chatPartnerUsername} />}
                 </Box>
                 {user && <ChatFriendsWindow user={user} updateUser={updateUser} />}
             </Box>

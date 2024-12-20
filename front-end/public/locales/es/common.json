@@ -27,6 +27,8 @@
     "chat": {
         "title": "Chat Público",
         "welcomePublic": "¡Bienvenido al chat público!",
+        "privateChatWith": "Chat privado con ",
+        "privateChatNotFriends": "No eres amigo de este usuario. Redirigiendo a la página de inicio...",
         "chatWindow": {
             "placeholder": "Escribe un mensaje...",
             "send": "Enviar"

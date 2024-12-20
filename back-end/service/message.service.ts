@@ -8,22 +8,43 @@ import {Chat} from "../model/chat";
 import WebsocketService from "./websocket.service";
 
 const getAllPublicChatMessages = async () => {
-    return await messageDb.getAllMessages();
+    const chat = await chatDb.getPublicChat();
+    return await messageDb.getAllMessagesByChatId(chat.getId() as number);
+}
+
+const getAllPublicChatMessagesAdmin = async () => {
+    const chat = await chatDb.getPublicChat();
+    return await messageDb.getAllMessagesByChatIdAdmin(chat.getId() as number);
+}
+
+const getAllPrivateChatMessages = async (user1: string, user2: string) => {
+    try {
+        const chat = await chatDb.getPrivateChat(user1, user2);
+        return await messageDb.getAllMessagesByChatId(chat.getId() as number);
+    } catch (error) {
+        const chat = await chatDb.createPrivateChat(user1, user2);
+        return await messageDb.getAllMessagesByChatId(chat.getId() as number);
+    }
+}
+
+const getAllPrivateChatMessagesAdmin = async (user1: string, user2: string) => {
+    try {
+        const chat = await chatDb.getPrivateChat(user1, user2);
+        return await messageDb.getAllMessagesByChatIdAdmin(chat.getId() as number);
+    } catch (error) {
+        throw new Error('Chat not found.');
+    }
 }
 
 const getMessageById = async (id: number) : Promise<Message | undefined> => {
     return await messageDb.getMessageById(id);
 }
 
-const getAllPublicChatMessagesAdmin = async () => {
-    return await messageDb.getAllMessagesAdmin();
-}
-
 const getMessageByIdAdmin = async (id: number) : Promise<Message | undefined> => {
     return await messageDb.getMessageByIdAdmin(id);
 }
 
-const createMessage = async (messageInput: MessageCreateInput) : Promise<Message> => {
+const createMessage = async (messageInput: MessageCreateInput, username?: string) : Promise<Message> => {
     if (!messageInput.content) {
         throw new Error('Message must have content.');
     }
@@ -39,7 +60,7 @@ const createMessage = async (messageInput: MessageCreateInput) : Promise<Message
         throw new Error('Sender not found.');
     }
 
-    const chat : Chat = await chatDb.getPublicChat(); // Later change this!
+    const chat : Chat = username ? await chatDb.getPrivateChat(sender.getUsername(), username) : await chatDb.getPublicChat();
     const message : Message = new Message({ content: messageInput.content, deleted: false, sender, chat });
 
     const savedMessage : Message = await messageDb.addMessage({ message });
@@ -71,8 +92,10 @@ const permanentlyDeleteMessage = async (id: number) : Promise<void> => {
 
 export default {
     getAllPublicChatMessages,
-    getMessageById,
     getAllPublicChatMessagesAdmin,
+    getAllPrivateChatMessages,
+    getAllPrivateChatMessagesAdmin,
+    getMessageById,
     getMessageByIdAdmin,
     createMessage,
     deleteMessage,
