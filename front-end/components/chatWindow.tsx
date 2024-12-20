@@ -61,8 +61,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user,
     }
 
     const scrollToBottom = () => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        try {
+            if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({behavior: "smooth"});
+            }
+        } catch (error) {
+            // Do nothing
         }
     }
 
@@ -94,7 +98,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user,
                         }}
                     >
                         <List>
-                            {messages.map((message: Message) => (
+                            {messages && messages.map((message: Message) => (
                                 <ListItem key={message.id} sx={{ bgcolor: message.deleted ? '#FFCCCB' : 'inherit' }}>
                                     {user && message.sender?.username === user.username && (
                                         <>

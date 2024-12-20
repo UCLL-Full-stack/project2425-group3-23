@@ -6,7 +6,7 @@ import {
     getFriendRequests,
     removeFriend,
     sendFriendRequest
-} from "@services/messageService";
+} from "@services/userService";
 import React from "react";
 import GenericErrorDialog from "@/components/genericErrorDialog";
 import NotificationsIcon from '@mui/icons-material/Notifications';
