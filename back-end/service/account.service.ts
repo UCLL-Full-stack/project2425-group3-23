@@ -3,6 +3,7 @@ import userDb from "../repository/user.db";
 import {AuthenticationResponse} from "../types";
 import jwtUtils from "../util/jwt";
 import {User} from "../model/user";
+import chatService from "../service/chat.service";
 
 const authenticate = async ({ username, password } : { username : string, password: string } ) : Promise<AuthenticationResponse> => {
     const user : User | undefined = await userDb.getUserByUsername({username});
@@ -45,6 +46,9 @@ const register = async ({ username, password } : { username: string, password: s
         friendRequests: []
     });
     await userDb.addUser({user});
+
+    const publicChat = await chatService.getPublicChat();
+    await chatService.addUserToChat(publicChat.getId() as number, username);
 }
 
 const banUser = async ({ adminUsername, targetUsername }: { adminUsername: string; targetUsername: string }): Promise<void> => {

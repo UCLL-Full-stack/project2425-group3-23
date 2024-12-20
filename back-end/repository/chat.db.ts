@@ -72,9 +72,25 @@ const createPrivateChat = async (user1: string, user2: string): Promise<Chat> =>
     }
 }
 
+const addUserToChat = async (chatId: number, username: string): Promise<void> => {
+    try {
+        await database.chat.update({
+            where: { id: chatId },
+            data: {
+                users: {
+                    connect: { username: username }
+                }
+            }
+        });
+    } catch (error) {
+        throw new Error('Database error. See server logs for details.');
+    }
+}
+
 export default {
     getAllChats,
     getPublicChat,
     getPrivateChat,
-    createPrivateChat
+    createPrivateChat,
+    addUserToChat
 }
