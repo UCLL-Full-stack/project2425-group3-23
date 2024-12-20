@@ -5,6 +5,7 @@ export type User ={
     friends?: User[];
     friendRequests?: FriendRequest[];
     isBanned?: boolean;
+    token?: string;
 }
 
 export interface Message {

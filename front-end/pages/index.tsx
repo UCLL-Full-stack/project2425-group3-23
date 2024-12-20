@@ -1,75 +1,58 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect} from 'react';
 import Head from 'next/head';
-import {Message, User} from '@/types';
 import ChatWindow from '../components/chatWindow';
 import {getPublicMessages, getUser} from '@/services/api';
-import {Box, MenuItem, Select, Typography} from "@mui/material";
+import {Typography} from "@mui/material";
 import MessageWebSocket from "@/services/messageWebSocket";
 import Header from '@/components/header';
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
+import useSWR, {mutate} from "swr";
 
 const Home: React.FC = () => {
     const { t } = useTranslation();
 
-    const [username, setUsername] = useState<string>("");
-    const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string>("");
-    const [messages, setMessages] = useState<Message[]>([]);
-
-    const updateMessages = async () => {
+    const loggedInUserFetcher = async () => {
         try {
-            const data = await getPublicMessages(token);
-            data.sort((a, b) => a.id - b.id);
-            setMessages(data);
+            const storedUser = JSON.parse(localStorage.getItem('loggedInUser'));
+
+            let user = await getUser(storedUser.username, storedUser.token);
+            user.token = storedUser.token;
+
+            return user;
         } catch (error) {
-            setMessages([]);
-            console.error(error);
+            return null;
+        }
+    };
+    const { data: loggedInUser } = useSWR('userWithToken', loggedInUserFetcher);
+
+    const messagesFetcher = async() => {
+        try {
+            return getPublicMessages(loggedInUser?.token);
+        } catch (error) {
+            return null;
         }
     }
-
-    const updateUser = async () => {
-        try {
-            if (!username) {
-                console.error("Failed to login", "No username");
-                return;
-            }
-            if (!token) {
-                console.error("Failed to login", "No token");
-                return;
-            }
-
-            const data = await getUser(username, token);
-            setUser(data);
-        } catch (error) {
-            setUser(null);
-            console.error(error);
-        }
-    }
+    const { data: messages } = useSWR('messages', messagesFetcher);
 
     useEffect(() => {
-        const fetchMessages = async () => {
-            const data = await getPublicMessages(token);
-            data.sort((a, b) => a.id - b.id);
-            setMessages(data);
-        };
-        fetchMessages();
-
-        const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
-        if (storedUser) {
-            setUsername(storedUser.username);
-            setToken(storedUser.token);
-        }
-
-        // WebSocket functionality
-        MessageWebSocket.getInstance(messages, setMessages);
-    }, [token]);
+        // Update messages when (and if) user is updated
+        mutate('messages');
+    }, [loggedInUser]);
 
     useEffect(() => {
-        if (username && token) {
-            updateUser();
+        // Websocket connection
+        const websocket = MessageWebSocket.getInstance(messages, () => {mutate('messages')});
+        websocket.onclose = () => {
+            // If the websocket connection closes for one reason or the other fallback to polling
+            // If the websocket closes because the page is being closed or refreshed, the polling will be stopped so no need to worry about that
+            const intervalId = setInterval(() => {
+                mutate('messages');
+            }, 1000);
+
+            return () => clearInterval(intervalId);
         }
-    }, [username, token]);
+    }, []);
 
     return (
         <>
@@ -81,7 +64,7 @@ const Home: React.FC = () => {
                 <Typography variant="h3" sx={{ mb: '0.25em', width: '100%', textAlign: 'center' }}>
                     {t("chat.welcomePublic")}
                 </Typography>
-                {<ChatWindow messages={messages} updateMessages={updateMessages} user={user} updateUser={updateUser} />}
+                {messages && <ChatWindow messages={messages} updateMessages={() => {mutate('messages')}} user={loggedInUser} updateUser={() => {mutate('userWithToken')}} />}
             </main>
         </>
     );

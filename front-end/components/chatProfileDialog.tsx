@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Avatar, Box, Button, Dialog, Typography } from "@mui/material";
-import { User } from "@/types";
+import React, {useEffect, useState} from "react";
+import {Avatar, Box, Button, Dialog, Typography} from "@mui/material";
+import {User} from "@/types";
 import {
-    sendFriendRequest,
+    acceptFriendRequest,
+    banUser,
+    declineFriendRequest,
     getUser,
     removeFriend,
-    acceptFriendRequest,
-    declineFriendRequest,
-    banUser,
+    sendFriendRequest
 } from "@/services/api";
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
+import useSWR, {mutate} from "swr";
+import GenericErrorDialog from "@components/genericErrorDialog";
 
 type Props = {
     user: User; // The username of the current user
@@ -27,40 +29,31 @@ const ChatProfileDialog: React.FC<Props> = ({
     onClose,
 }: Props) => {
     const { t } = useTranslation();
+    const [ errorMessage, setErrorMessage ] = useState("");
 
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string>("");
+    const fetcher = async () => {
+        try {
+            return await getUser(selectedUsername, user.token);
+        } catch (error) {
+            return null;
+        }
+    }
+    const { data: selectedUser } = useSWR('selectedUserProfile', fetcher);
 
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
-        if (storedUser) {
-            setToken(storedUser.token);
-        }
-
-        const fetchSelectedUser = async () => {
-            try {
-                if (selectedUsername) {
-                    setSelectedUser(await getUser(selectedUsername, token));
-                }
-            } catch (error) {
-                console.error("Error fetching selected user:", error);
-            }
-        };
-
-        fetchSelectedUser();
+        mutate('selectedUserProfile');
     }, [selectedUsername, open]);
 
     const handleBanUserClick = async () => {
         try {
             if (selectedUser && selectedUser.username) {
-                await banUser(selectedUser.username, token);
-                alert(t("chat.profileDialog.banned"));
-                setSelectedUser(await getUser(selectedUser.username, token));
+                await banUser(selectedUser.username, user.token);
+                mutate('selectedUserProfile');
                 onClose();
             }
         } catch (error) {
-            console.error("Error banning user:", error.message || error);
-            alert(t("chat.profileDialog.banFailed"));
+            onClose();
+            setErrorMessage(error.message);
         }
     };
     
@@ -120,11 +113,12 @@ const ChatProfileDialog: React.FC<Props> = ({
     const addFriendClick = async () => {
         if (selectedUser && selectedUser.username) {
             try {
-                await sendFriendRequest(user.username, selectedUser.username, token);
-                setSelectedUser(await getUser(selectedUser.username, token));
+                await sendFriendRequest(user.username, selectedUser.username, user.token);
+                // Update the user object to reflect the new friend status
+                mutate('selectedUserProfile');
                 updateUser();
             } catch (error) {
-                console.error("Error adding friend:", error);
+                setErrorMessage(error.message);
             }
         }
     };
@@ -132,11 +126,12 @@ const ChatProfileDialog: React.FC<Props> = ({
     const removeFriendClick = async () => {
         if (selectedUser && selectedUser.username) {
             try {
-                await removeFriend(user.username, selectedUser.username, token);
-                setSelectedUser(await getUser(selectedUser.username, token));
+                await removeFriend(user.username, selectedUser.username, user.token);
+                // Update the user object to reflect the new friend status
+                mutate('selectedUserProfile');
                 updateUser();
             } catch (error) {
-                console.error("Error removing friend:", error);
+                setErrorMessage(error.message);
             }
         }
     };
@@ -146,11 +141,12 @@ const ChatProfileDialog: React.FC<Props> = ({
             const request = getPendingReceivedFriendRequest(user, selectedUser);
             if (request) {
                 try {
-                    await acceptFriendRequest(request.id, token);
-                    setSelectedUser(await getUser(selectedUser.username, token));
+                    await acceptFriendRequest(request.id, user.token);
+                    // Update the user object to reflect the new friend status
+                    mutate('selectedUserProfile');
                     updateUser();
                 } catch (error) {
-                    console.error("Error accepting friend request:", error);
+                    setErrorMessage(error.message);
                 }
             }
         }
@@ -161,127 +157,131 @@ const ChatProfileDialog: React.FC<Props> = ({
             const request = getPendingReceivedFriendRequest(user, selectedUser);
             if (request) {
                 try {
-                    await declineFriendRequest(request.id, token);
-                    setSelectedUser(await getUser(selectedUser.username, token));
+                    await declineFriendRequest(request.id, user.token);
+                    // Update the user object to reflect the new friend status
+                    mutate('selectedUserProfile');
                     updateUser();
                 } catch (error) {
-                    console.error("Error declining friend request:", error);
+                    setErrorMessage(error.message);
                 }
             }
         }
     };
 
     return (
-        <Dialog open={open} onClose={onClose}>
-            <Box
-                sx={{
-                    p: "1em",
-                    display: "flex",
-                }}
-            >
-                {selectedUser && (
-                    <>
-                        <Avatar
-                            sx={{
-                                width: 100,
-                                height: 100,
-                                marginRight: "1em",
-                            }}
-                        />
-                        <Box>
-                            <Typography variant="h5">{selectedUser?.username}</Typography>
-                            {selectedUser?.isBanned && (
-                                <Typography
-                                    variant="body1"
-                                    sx={{
-                                        color: "red",
-                                        fontWeight: "bold",
-                                    }}
-                                >
-                                    {t("chat.profileDialog.bannedStatus")}
-                                </Typography>
-                            )}
-                            {isFriend(user.username, selectedUser) && (
-                                <>
+        <>
+            <Dialog open={open} onClose={onClose}>
+                <Box
+                    sx={{
+                        p: "1em",
+                        display: "flex",
+                    }}
+                >
+                    {selectedUser && (
+                        <>
+                            <Avatar
+                                sx={{
+                                    width: 100,
+                                    height: 100,
+                                    marginRight: "1em",
+                                }}
+                            />
+                            <Box>
+                                <Typography variant="h5">{selectedUser?.username}</Typography>
+                                {selectedUser?.isBanned && (
                                     <Typography
                                         variant="body1"
                                         sx={{
-                                            textDecoration: "underline",
+                                            color: "red",
                                             fontWeight: "bold",
                                         }}
                                     >
-                                        {t("chat.profileDialog.friend")}
+                                        {t("chat.profileDialog.bannedStatus")}
                                     </Typography>
-                                    <Button
-                                        variant="contained"
-                                        color="error"
-                                        onClick={removeFriendClick}
-                                    >
-                                        {t("chat.profileDialog.remove")}
-                                    </Button>
-                                </>
-                            )}
-                            {user.username !== selectedUser.username &&
-                                !isFriend(user.username, selectedUser) &&
-                                !hasPendingSentFriendRequest(user, selectedUser) &&
-                                !hasPendingReceivedFriendRequest(user, selectedUser) && (
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={addFriendClick}
-                                    >
-                                        {t("chat.profileDialog.add")}
-                                    </Button>
                                 )}
-                            {hasPendingReceivedFriendRequest(user, selectedUser) && (
-                                <>
+                                {isFriend(user.username, selectedUser) && (
+                                    <>
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                textDecoration: "underline",
+                                                fontWeight: "bold",
+                                            }}
+                                        >
+                                            {t("chat.profileDialog.friend")}
+                                        </Typography>
+                                        <Button
+                                            variant="contained"
+                                            color="error"
+                                            onClick={removeFriendClick}
+                                        >
+                                            {t("chat.profileDialog.remove")}
+                                        </Button>
+                                    </>
+                                )}
+                                {user.username !== selectedUser.username &&
+                                    !isFriend(user.username, selectedUser) &&
+                                    !hasPendingSentFriendRequest(user, selectedUser) &&
+                                    !hasPendingReceivedFriendRequest(user, selectedUser) && (
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={addFriendClick}
+                                        >
+                                            {t("chat.profileDialog.add")}
+                                        </Button>
+                                    )}
+                                {hasPendingReceivedFriendRequest(user, selectedUser) && (
+                                    <>
+                                        <Typography
+                                            variant="body1"
+                                            sx={{ color: "text.disabled" }}
+                                        >
+                                            {t("chat.profileDialog.received")}
+                                        </Typography>
+                                        <Button
+                                            variant="contained"
+                                            color="success"
+                                            sx={{ mr: "0.5em" }}
+                                            onClick={acceptFriendRequestClick}
+                                        >
+                                            {t("chat.profileDialog.accept")}
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            color="error"
+                                            sx={{ ml: "0.5em" }}
+                                            onClick={declineFriendRequestClick}
+                                        >
+                                            {t("chat.profileDialog.decline")}
+                                        </Button>
+                                    </>
+                                )}
+                                {hasPendingSentFriendRequest(user, selectedUser) && (
                                     <Typography
                                         variant="body1"
                                         sx={{ color: "text.disabled" }}
                                     >
-                                        {t("chat.profileDialog.received")}
+                                        {t("chat.profileDialog.pending")}
                                     </Typography>
+                                )}
+                                {user.username !== selectedUser.username && (
                                     <Button
                                         variant="contained"
-                                        color="success"
-                                        sx={{ mr: "0.5em" }}
-                                        onClick={acceptFriendRequestClick}
+                                        color="warning"
+                                        onClick={handleBanUserClick}
+                                        sx={{ mt: "1em" }}
                                     >
-                                        {t("chat.profileDialog.accept")}
+                                        {t("chat.profileDialog.ban")}
                                     </Button>
-                                    <Button
-                                        variant="contained"
-                                        color="error"
-                                        sx={{ ml: "0.5em" }}
-                                        onClick={declineFriendRequestClick}
-                                    >
-                                        {t("chat.profileDialog.decline")}
-                                    </Button>
-                                </>
-                            )}
-                            {hasPendingSentFriendRequest(user, selectedUser) && (
-                                <Typography
-                                    variant="body1"
-                                    sx={{ color: "text.disabled" }}
-                                >
-                                    {t("chat.profileDialog.pending")}
-                                </Typography>
-                            )}
-                            {user.username !== selectedUser.username && (
-                                <Button
-                                    variant="contained"
-                                    color="warning"
-                                    onClick={handleBanUserClick}
-                                    sx={{ mt: "1em" }}
-                                >
-                                    {t("chat.profileDialog.ban")}
-                                </Button>
-                            )}
-                        </Box>
-                    </>
-                )}
-            </Box>
-        </Dialog>
+                                )}
+                            </Box>
+                        </>
+                    )}
+                </Box>
+            </Dialog>
+            <GenericErrorDialog open={!!errorMessage} errorMessage={errorMessage} onClose={() => {setErrorMessage("")}} />
+        </>
     );
 };
 

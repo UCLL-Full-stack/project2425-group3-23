@@ -190,7 +190,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, updateMessages, user,
                         <Button variant='contained' color='error' onClick={async () => {
                             try {
                                 await deleteMessage(selectedMessageId, token);
-                                updateMessages();
+                                await updateMessages();
                             } catch (error) {
                                 setError(error.message);
                                 setOpenError(true);
