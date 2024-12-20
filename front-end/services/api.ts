@@ -211,3 +211,18 @@ export const removeFriend = async (username: string, friendUsername: string, tok
         throw error;
     }
 }
+
+export async function banUser(username: string, token: string): Promise<void> {
+    const response = await fetch(`/api/users/ban`, {
+        method: 'POST', 
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`, 
+        },
+        body: JSON.stringify({ username }), 
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to ban user');
+    }
+}

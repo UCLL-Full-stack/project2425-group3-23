@@ -49,7 +49,11 @@
             "accept": "Aceptar",
             "decline": "Rechazar",
             "cancel": "Cancelar",
-            "thisIsYou": "¡Eres tú!"
+            "thisIsYou": "¡Eres tú!",
+            "ban": "Bloquear",
+            "banned": "Usuario bloqueado",
+            "bannedStatus": "Este usuario está bloqueado",
+            "banFailed": "No se pudo bloquear al usuario"
         }
     },
     "notifications": {
@@ -57,6 +61,20 @@
         "noFriendRequests": "No hay solicitudes de amistad",
         "accept": "Aceptar",
         "decline": "Rechazar"
+    },
+    "register": {
+    "title": "Registrar",
+    "label": {
+      "username": "Nombre de usuario",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña"
+    },
+    "button": "Registrar",
+    "success": "¡Registro exitoso! Redirigiendo al inicio de sesión...",
+    "error": {
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "failed": "El registro falló. Por favor, inténtelo de nuevo."
     }
+  }
 }
     

@@ -52,7 +52,10 @@
             "accept": "Accepteren",
             "decline": "Afwijzen",
             "cancel": "Annuleren",
-            "thisIsYou": "Dit ben jij!"
+            "thisIsYou": "Dit ben jij!",
+            "banned": "Gebruiker is geband.",
+            "banFailed": "Het is niet gelukt om de gebruiker te bannen. Probeer opnieuw.",
+            "ban": "Ban Gebruiker"
         }
     },
     "notifications": {
@@ -60,5 +63,19 @@
         "noFriendRequests": "Geen vriendschapsverzoeken",
         "accept": "Accepteren",
         "decline": "Afwijzen"
+    },
+    "register": {
+    "title": "Registreren",
+    "label": {
+      "username": "Gebruikersnaam",
+      "password": "Wachtwoord",
+      "confirmPassword": "Bevestig wachtwoord"
+    },
+    "button": "Registreren",
+    "success": "Registratie succesvol! Doorverwijzen naar inloggen...",
+    "error": {
+      "passwordMismatch": "Wachtwoorden komen niet overeen",
+      "failed": "Registratie mislukt. Probeer het opnieuw."
     }
+  }
 }

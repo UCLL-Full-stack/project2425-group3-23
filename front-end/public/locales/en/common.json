@@ -49,7 +49,10 @@
             "accept": "Accept",
             "decline": "Decline",
             "cancel": "Cancel",
-            "thisIsYou": "This is you!"
+            "thisIsYou": "This is you!",
+            "banned": "User has been banned.",
+            "banFailed": "Failed to ban the user. Please try again.",
+            "ban": "Ban User"
         }
     },
     "notifications": {
@@ -57,5 +60,19 @@
         "noFriendRequests": "No friend requests",
         "accept": "Accept",
         "decline": "Decline"
+    },
+    "register": {
+    "title": "Register",
+    "label": {
+      "username": "Username",
+      "password": "Password",
+      "confirmPassword": "Confirm Password"
+    },
+    "button": "Register",
+    "success": "Registration successful! Redirecting to login...",
+    "error": {
+      "passwordMismatch": "Passwords do not match",
+      "failed": "Registration failed. Please try again."
     }
+  }
 }
