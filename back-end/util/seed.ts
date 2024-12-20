@@ -10,6 +10,22 @@ const main = async () => {
     await prisma.friendRequest.deleteMany();
     await prisma.user.deleteMany();
 
+    const user1 = await prisma.user.create({
+        data: {
+            username: 'user1',
+            password: await bcrypt.hash('user1', 12),
+            role: 'user',
+        },
+    });
+
+    const user2 = await prisma.user.create({
+        data: {
+            username: 'user2',
+            password: await bcrypt.hash('user2', 12),
+            role: 'admin',
+        },
+    });
+
     const userYorick = await prisma.user.create({
         data: {
             username: 'Yorick',
@@ -43,6 +59,42 @@ const main = async () => {
                     { username: userSofie.username },
                     { username: userAdmin.username }
                 ],
+            },
+        },
+    });
+
+    const chatUser1Member = await prisma.chat.update({
+        where: { id: publicChat.id },
+        data: {
+            users: {
+                connect: { username: user1.username },
+            },
+        },
+    });
+
+    const user1ChatMember = await prisma.user.update({
+        where: { username: user1.username },
+        data: {
+            chats: {
+                connect: { id: publicChat.id },
+            },
+        },
+    });
+
+    const chatUser2Member = await prisma.chat.update({
+        where: { id: publicChat.id },
+        data: {
+            users: {
+                connect: { username: user2.username },
+            },
+        },
+    });
+
+    const user2ChatMember = await prisma.user.update({
+        where: { username: user2.username },
+        data: {
+            chats: {
+                connect: { id: publicChat.id },
             },
         },
     });
@@ -138,7 +190,43 @@ const main = async () => {
         },
     });
 
-    const friendRequest = await prisma.friendRequest.create({
+    const user1User2FriendRequest = await prisma.friendRequest.create({
+        data: {
+            status: 'pending',
+            sender: {
+                connect: { username: user1.username },
+            },
+            receiver: {
+                connect: { username: user2.username },
+            },
+        },
+    });
+
+    const user1sFriend = await prisma.user.update({
+        where: { username: user1.username },
+        data: {
+            ownsFriends: {
+                connect: { username: user2.username },
+            },
+            friendsOf: {
+                connect: { username: user2.username },
+            },
+        },
+    });
+
+    const user2sFriend = await prisma.user.update({
+        where: { username: user2.username },
+        data: {
+            ownsFriends: {
+                connect: { username: user1.username },
+            },
+            friendsOf: {
+                connect: { username: user1.username },
+            },
+        },
+    });
+
+    const sofieYorickFriendRequest = await prisma.friendRequest.create({
         data: {
             status: 'accepted',
             sender: {
