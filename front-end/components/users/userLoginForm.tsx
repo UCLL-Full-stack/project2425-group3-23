@@ -58,7 +58,7 @@ const UserLoginForm: React.FC = () => {
             <TextField
                 label={t('login.label.username')}
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value.slice(0, 20))}
                 variant="outlined"
                 fullWidth
             />
@@ -66,7 +66,7 @@ const UserLoginForm: React.FC = () => {
                 label={t('login.label.password')}
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value.slice(0, 100))}
                 variant="outlined"
                 fullWidth
             />

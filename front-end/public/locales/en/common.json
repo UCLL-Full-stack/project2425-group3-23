@@ -37,7 +37,9 @@
                 "message": "Are you sure you want to **permanently** delete this message?",
                 "cancel": "Cancel",
                 "delete": "Delete"
-            }
+            },
+            "messageEmpty": "Message cannot be empty.",
+            "messageTooLong": "Message is too long. Max 1000 characters."
         },
         "friendsWindow": {
             "friends": "Friends",

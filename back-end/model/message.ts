@@ -48,6 +48,9 @@ export class Message {
         if (!message.chat) {
             throw new Error('Chat is required');
         }
+        if (message.content.length > 1000) {
+            throw new Error('Content is too long');
+        }
     }
 
     getId(): number | undefined {

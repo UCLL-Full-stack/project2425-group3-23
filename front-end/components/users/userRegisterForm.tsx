@@ -61,7 +61,7 @@ const UserRegisterForm: React.FC = () => {
       <TextField
         label={t("register.label.username")}
         value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        onChange={(e) => setUsername(e.target.value.slice(0, 20))}
         variant="outlined"
         fullWidth
       />
@@ -69,7 +69,7 @@ const UserRegisterForm: React.FC = () => {
         label={t("register.label.password")}
         type="password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e) => setPassword(e.target.value.slice(0, 100))}
         variant="outlined"
         fullWidth
       />
@@ -77,7 +77,7 @@ const UserRegisterForm: React.FC = () => {
         label={t("register.label.confirmPassword")}
         type="password"
         value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
+        onChange={(e) => setConfirmPassword(e.target.value.slice(0, 100))}
         variant="outlined"
         fullWidth
       />
