@@ -54,17 +54,14 @@ const banUser = async ({ adminUsername, targetUsername }: { adminUsername: strin
     if (!admin || admin.getRole() !== 'admin') {
         throw new Error(`User ${adminUsername} does not have permission to ban users.`);
     }
-
     if (!targetUser) {
         throw new Error(`User ${targetUsername} does not exist.`);
     }
-
     if (targetUser.getRole() === 'admin') {
         throw new Error(`Cannot ban another admin user.`);
     }
 
-    targetUser.setBanned(true);
-    await userDb.updateUser({ user: targetUser });
+    await userDb.banUser(targetUser.getUsername());
 };
 
 

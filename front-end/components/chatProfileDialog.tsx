@@ -30,6 +30,12 @@ const ChatProfileDialog: React.FC<Props> = ({
 }: Props) => {
     const { t } = useTranslation();
     const [ errorMessage, setErrorMessage ] = useState("");
+    const [ role, setRole ] = useState("");
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("loggedInUser");
+        setRole(storedUser ? JSON.parse(storedUser).role : "");
+    }, [user]);
 
     const fetcher = async () => {
         try {
@@ -46,14 +52,12 @@ const ChatProfileDialog: React.FC<Props> = ({
 
     const handleBanUserClick = async () => {
         try {
-            if (selectedUser && selectedUser.username) {
-                await banUser(selectedUser.username, user.token);
-                mutate('selectedUserProfile');
-                onClose();
-            }
-        } catch (error) {
+            await banUser(selectedUser.username, user.token);
+            await mutate('selectedUserProfile');
             onClose();
+        } catch (error) {
             setErrorMessage(error.message);
+            onClose();
         }
     };
     
@@ -196,7 +200,7 @@ const ChatProfileDialog: React.FC<Props> = ({
                                             fontWeight: "bold",
                                         }}
                                     >
-                                        {t("chat.profileDialog.bannedStatus")}
+                                        {t("chat.profileDialog.banned")}
                                     </Typography>
                                 )}
                                 {isFriend(user.username, selectedUser) && (
@@ -265,7 +269,7 @@ const ChatProfileDialog: React.FC<Props> = ({
                                         {t("chat.profileDialog.pending")}
                                     </Typography>
                                 )}
-                                {user.username !== selectedUser.username && (
+                                {role === "admin" && !selectedUser.isBanned && user.username !== selectedUser.username && !selectedUser.isBanned && (
                                     <Button
                                         variant="contained"
                                         color="warning"

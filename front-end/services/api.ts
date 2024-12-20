@@ -284,16 +284,17 @@ export const removeFriend = async (username: string, friendUsername: string, tok
 }
 
 export async function banUser(username: string, token: string): Promise<void> {
-    const response = await fetch(`/api/users/ban`, {
-        method: 'POST', 
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, 
-        },
-        body: JSON.stringify({ username }), 
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to ban user');
+    try {
+        await fetch(`${API_URL}/users/${username}/ban`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({username}),
+        });
+    } catch (error) {
+        console.error('Error banning user:', error);
+        throw error;
     }
 }

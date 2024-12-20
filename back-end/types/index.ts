@@ -11,6 +11,7 @@ export interface User {
     username?: string;
     role?: string;
     password?: string;
+    isBanned?: boolean;
     messages?: Message[];
     chats?: Chat[];
     friends?: User[];
