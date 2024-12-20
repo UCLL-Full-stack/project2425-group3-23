@@ -57,7 +57,9 @@ const main = async () => {
                 connect: [
                     { username: userYorick.username },
                     { username: userSofie.username },
-                    { username: userAdmin.username }
+                    { username: userAdmin.username },
+                    { username: user1.username },
+                    { username: user2.username },
                 ],
             },
         },
