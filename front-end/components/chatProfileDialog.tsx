@@ -7,6 +7,7 @@ import {
     removeFriend,
     acceptFriendRequest,
     declineFriendRequest,
+    banUser,
 } from "@/services/api";
 import { useTranslation } from "next-i18next";
 
@@ -50,18 +51,19 @@ const ChatProfileDialog: React.FC<Props> = ({
     }, [selectedUsername, open]);
 
     const handleBanUserClick = async () => {
-        if (selectedUser && selectedUser.username) {
-            try {
+        try {
+            if (selectedUser && selectedUser.username) {
                 await banUser(selectedUser.username, token);
                 alert(t("chat.profileDialog.banned"));
-                setSelectedUser(await getUser(selectedUser.username, token)); // Update user status
+                setSelectedUser(await getUser(selectedUser.username, token));
                 onClose();
-            } catch (error) {
-                console.error("Error banning user:", error);
-                alert(t("chat.profileDialog.banFailed"));
             }
+        } catch (error) {
+            console.error("Error banning user:", error.message || error);
+            alert(t("chat.profileDialog.banFailed"));
         }
     };
+    
 
     const isFriend = (myUsername: string, user: User) => {
         if (!user.friends) {
@@ -284,7 +286,3 @@ const ChatProfileDialog: React.FC<Props> = ({
 };
 
 export default ChatProfileDialog;
-
-function banUser(username: string, token: string) {
-    throw new Error("Function not implemented.");
-}

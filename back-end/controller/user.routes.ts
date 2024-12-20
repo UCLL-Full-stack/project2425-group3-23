@@ -453,22 +453,17 @@ userRouter.get('/:username/friend-requests', async (req : Request, res : Respons
  *       403:
  *         description: You do not have permission to ban this user
  */
-userRouter.post('/:username/ban', async (req : Request, res : Response, next : NextFunction) => {
+userRouter.post('/:username/ban', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { username: authUsername, role } = jwtUtil.getUsernameAndRoleFromRequest(req);
+        const { username: adminUsername, role } = jwtUtil.getUsernameAndRoleFromRequest(req);
+
         if (role !== "admin") {
-            throw new UnauthorizedError( 'credentials_bad_scheme', { message: 'You do not have permission to ban users.' });
+            return res.status(403).json({ message: 'You do not have permission to ban users.' });
         }
 
-        const username : string = req.params.username;
-        const user = await userService.getUserByUsername(username);
+        const targetUsername: string = req.params.username;
 
-        if (!user) {
-            throw new Error(`User ${username} not found`);
-        }
-
-        // Ban the user
-        await accountService.banUser({ username });
+        await accountService.banUser({ adminUsername, targetUsername });
 
         res.status(204).end();
     } catch (error) {
