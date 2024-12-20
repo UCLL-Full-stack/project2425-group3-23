@@ -8,7 +8,7 @@ import {prepareFriend, prepareFriendRequest, prepareUser, prepareUserStrict} fro
 import {UnauthorizedError} from "express-jwt";
 
 const getAllUsers = async () => {
-
+    return userDb.getAllUsers();
 }
 
 const getUserByUsername = async (username: string) : Promise<User | undefined> => {
@@ -71,7 +71,7 @@ const getFriendRequests = async ({ username }: { username: string }) : Promise<F
     let result: FriendRequest[] = [];
     for (let i = 0; i < lazyFriendRequests.length; i++) {
         const friendRequest = lazyFriendRequests[i];
-        const foundFriendRequest = await friendRequestDb.getFriendRequestById({ id: friendRequest.getId() });
+        const foundFriendRequest = await friendRequestDb.getFriendRequestById({ id: friendRequest.getId() as number });
         if (foundFriendRequest) {
             result.push(foundFriendRequest);
         }

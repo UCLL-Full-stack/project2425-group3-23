@@ -3,8 +3,8 @@ import userDb from "../../repository/user.db";
 import { User } from "../../model/user";
 import accountService from "../../service/account.service";
 
-jest.mock("../repository/user.db");
-jest.mock("../util/jwt");
+jest.mock("../../repository/user.db");
+jest.mock("../../util/jwt");
 jest.mock("bcrypt");
 
 describe("Authentication Service", () => {

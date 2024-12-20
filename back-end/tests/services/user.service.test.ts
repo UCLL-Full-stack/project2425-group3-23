@@ -4,8 +4,8 @@ import userService from "../../service/user.service";
 import { User } from "../../model/user";
 import { FriendRequest } from "../../model/friendRequest";
 
-jest.mock("../repository/user.db");
-jest.mock("../repository/friendRequest.db");
+jest.mock("../../repository/user.db");
+jest.mock("../../repository/friendRequest.db");
 
 describe("User Service", () => {
   const mockUser = new User({
