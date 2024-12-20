@@ -41,7 +41,6 @@ const register = async ({ username, password } : { username: string, password: s
         password: password,
         role: 'user',
         messages: [],
-        chats: [],
         friends: [],
         friendRequests: []
     });

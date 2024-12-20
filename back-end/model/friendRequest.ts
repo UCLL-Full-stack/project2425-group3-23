@@ -77,7 +77,9 @@ export class FriendRequest {
         id,
         status,
         sender,
-        receiver
+        receiver,
+        senderUsername,
+        receiverUsername
     } : FriendRequestPrisma & {
         sender?: UserPrisma;
         receiver?: UserPrisma;
@@ -86,12 +88,12 @@ export class FriendRequest {
             id,
             status,
             sender: sender ? User.from(sender) : new User({
-                username: '?',
+                username: senderUsername,
                 role: '?',
                 password: 'Password01'
             }),
             receiver: receiver ? User.from(receiver) : new User({
-                username: '?',
+                username: receiverUsername,
                 role: '?',
                 password: 'Password01'
             })

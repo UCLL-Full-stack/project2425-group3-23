@@ -145,7 +145,8 @@ messageRouter.get('/:id', async (req : Request, res : Response, next : NextFunct
                 throw new Error('Message not found.');
             }
 
-            if (!authUser.getChats().map(chat => chat.getId()).includes(message.getChat()?.getId())) {
+            const chatId = message.getChat()?.getId();
+            if (!chatId || await userService.hasChat(authUser, chatId)) {
                 throw new UnauthorizedError('credentials_bad_scheme', { message: 'You do not have the required role to access this content.' })
             }
 

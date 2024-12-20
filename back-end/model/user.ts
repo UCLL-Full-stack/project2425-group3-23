@@ -19,7 +19,6 @@ export class User {
 
     // Relationships
     private messages? : Message[];
-    private chats? : Chat[]; // User's chat
     private friends? : User[]; // User's friends
     private friendRequests? : FriendRequest[]; // User's received friend requests
 
@@ -28,7 +27,6 @@ export class User {
         role: string;
         password: string;
         messages?: Message[];
-        chats?: Chat[];
         friends?: User[];
         friendRequests?: FriendRequest[];
         isBanned?: boolean;
@@ -38,7 +36,6 @@ export class User {
         this.role = user.role;
         this.password = user.password;
         this.messages = user.messages;
-        this.chats = user.chats;
         this.friends = user.friends;
         this.friendRequests = user.friendRequests;
         this.isBanned = user.isBanned || false;
@@ -111,32 +108,12 @@ export class User {
         return this.messages;
     }
 
-    addMessage(message: Message) : void {
-        this.messages?.push(message);
-    }
-
     setMessages(messages: Message[]) {
         this.messages = messages;
     }
 
-    getChats(): Chat[] {
-        return this.chats ? this.chats : [];
-    }
-
-    addChat(chat: Chat) : void {
-        this.chats?.push(chat);
-    }
-
-    setChats(chats: Chat[]) {
-        this.chats = chats;
-    }
-
     getFriends(): User[] {
         return this.friends ? this.friends : [];
-    }
-
-    addFriend(friend: User) : void {
-        this.friends?.push(friend);
     }
 
     setFriends(friends: User[]) {
@@ -145,10 +122,6 @@ export class User {
 
     getFriendRequests(): FriendRequest[] {
         return this.friendRequests ? this.friendRequests : [];
-    }
-
-    addFriendRequest(friendRequest: FriendRequest) : void {
-        this.friendRequests?.push(friendRequest);
     }
 
     setFriendRequests(friendRequests: FriendRequest[]) {
@@ -168,16 +141,14 @@ export class User {
         role,
         password,
         messages,
-        chats,
         ownsFriends,
         receivedFriendRequests
-    } : UserPrisma & { messages?: MessagePrisma[], chats?: ChatPrisma[], ownsFriends?: UserPrisma[], receivedFriendRequests? : FriendRequestPrisma[] }) : User {
+    } : UserPrisma & { messages?: MessagePrisma[], ownsFriends?: UserPrisma[], receivedFriendRequests? : FriendRequestPrisma[] }) : User {
         return new User({
             username,
             role,
             password,
             messages: messages ? messages.map((message) => Message.from(message)) : [],
-            chats: chats ? chats.map((chat) => Chat.from(chat)) : [],
             friends: ownsFriends ? ownsFriends.map((user) => User.from(user)) : [],
             friendRequests: receivedFriendRequests ? receivedFriendRequests.map((friendRequest) => FriendRequest.from(friendRequest)) : []
         });

@@ -2,6 +2,7 @@ import {User} from "../model/user";
 import userDb from "../repository/user.db";
 import {FriendRequest} from "../model/friendRequest";
 import friendRequestDb from "../repository/friendRequest.db";
+import chatDb from "../repository/chat.db";
 
 const getAllUsers = async () => {
     return userDb.getAllUsers();
@@ -76,6 +77,11 @@ const getFriendRequests = async ({ username }: { username: string }) : Promise<F
     return result;
 }
 
+const hasChat = async (user: User, chatId: number) : Promise<boolean> => {
+    const chats = await chatDb.getAllChats();
+    return chats.some(chat => chat.getId() === chatId && chat.getUsers()?.some(u => u.getUsername() === user.getUsername()));
+}
+
 export default {
     getAllUsers,
     getUserByUsername,
@@ -83,5 +89,6 @@ export default {
     isFriends,
     addFriend,
     removeFriend,
-    getFriendRequests
+    getFriendRequests,
+    hasChat
 }
