@@ -1,5 +1,5 @@
 import {User} from "@/types";
-import {Box, Button, Dialog, Icon, TextField, Typography} from "@mui/material";
+import {Box, Button, Dialog, TextField, Typography} from "@mui/material";
 import {
     acceptFriendRequest,
     declineFriendRequest,
@@ -7,99 +7,58 @@ import {
     removeFriend,
     sendFriendRequest
 } from "@/services/api";
-import React, {useEffect} from "react";
+import React from "react";
 import GenericErrorDialog from "@/components/genericErrorDialog";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import {useTranslation} from "next-i18next";
+import useSWR, { mutate } from "swr";
 
-type chatFriendsWindowProps = {
+type ChatFriendsWindowProps = {
     user: User;
     updateUser: () => void;
-}
+};
 
-const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser }) => {
+const ChatFriendsWindow: React.FC<ChatFriendsWindowProps> = ({ user, updateUser }) => {
     const { t } = useTranslation();
-
     const [friendUsername, setFriendUsername] = React.useState('');
     const [errorDialogOpen, setErrorDialogOpen] = React.useState(false);
     const [errorDialogMessage, setErrorDialogMessage] = React.useState('');
     const [friendRequestsDialogOpen, setFriendRequestsDialogOpen] = React.useState(false);
-    const [friendRequests, setFriendRequests] = React.useState(user.friendRequests);
-    const [token, setToken] = React.useState('');
 
-    useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        setToken(storedUser.token);
-    }, [user]);
+    const storedUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const token = storedUser?.token;
 
-    useEffect(() => {
-        if (token) {
-            updateFriendRequests();
-        }
-    }, [token]);
-
-    const updateFriendRequests = async () => {
-        const friendRequests = await getFriendRequests(user.username, token);
-        setFriendRequests(friendRequests.filter(request => request.status === 'pending'));
+    const fetcher = async () => {
+        return getFriendRequests(user.username, token).then(friendRequests => friendRequests.filter(friendRequest => friendRequest.status === 'pending'));
     }
+    const { data: friendRequests = [], error } = useSWR(
+        'chatFriendsWindow',
+        fetcher
+    );
 
     const openErrorDialog = (message: string) => {
         setErrorDialogMessage(message);
         setErrorDialogOpen(true);
-    }
+    };
 
     const closeErrorDialog = () => {
         setErrorDialogOpen(false);
-    }
+    };
 
-    const removeFriendClick = async (friend: string) => {
+    const handleFriendAction = async (action, ...args) => {
         try {
-            await removeFriend(user.username, friend, token);
+            await action(...args);
             updateUser();
-        } catch (error : any) {
+            await mutate('chatFriendsWindow');
+        } catch (error: any) {
             openErrorDialog(error.message);
         }
-    }
+    };
 
     const sendFriendRequestClick = async () => {
-        try {
-            await sendFriendRequest(user.username, friendUsername, token);
-            updateUser();
-            setFriendUsername('');
-        } catch (error : any) {
-            openErrorDialog(error.message);
-        }
-    }
-
-    const acceptFriendRequestClick = async (id: number) => {
-        try {
-            await acceptFriendRequest(id, token);
-            updateUser();
-            await updateFriendRequests();
-        } catch (error : any) {
-            openErrorDialog(error.message);
-        }
-    }
-
-    const declineFriendRequestClick = async (id: number) => {
-        try {
-            await declineFriendRequest(id, token);
-            updateUser();
-            await updateFriendRequests();
-        } catch (error : any) {
-            openErrorDialog(error.message);
-        }
-    }
-
-    const openFriendRequestsDialog = async () => {
-        setFriendRequestsDialogOpen(true);
-
-        try {
-            await updateFriendRequests();
-        } catch (error : any) {
-            openErrorDialog(error.message);
-        }
-    }
+        await handleFriendAction(sendFriendRequest, user.username, friendUsername, token);
+        setFriendUsername('');
+    };
 
     return (
         <Box sx={{
@@ -120,17 +79,13 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
                 </Typography>
                 <Box sx={{ position: 'absolute', right: 0 }}>
                     <NotificationsIcon
-                        sx={{
-                            fontSize: '2rem',
-                            cursor: 'pointer',
-                            color: friendRequests.length > 0 ? 'yellow' : 'inherit'
-                        }}
-                        onClick={openFriendRequestsDialog}
+                        sx={{ fontSize: '2rem', cursor: 'pointer', color: friendRequests.length > 0 ? 'yellow' : 'inherit' }}
+                        onClick={() => setFriendRequestsDialogOpen(true)}
                     />
                 </Box>
             </Box>
             <Box sx={{ flexGrow: 1 }}>
-                {user.friends && user.friends.map(friend => (
+                {user.friends.map(friend => (
                     <Box key={friend.username} sx={{
                         display: 'flex',
                         alignItems: 'center',
@@ -141,7 +96,7 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
                         <Typography variant='h6'>{friend.username}</Typography>
                         <Box sx={{ display: 'flex', gap: '0.5em' }}>
                             <Button variant='contained' color='info'>{t("chat.friendsWindow.chat")}</Button>
-                            <Button variant='contained' color='error' onClick={() => removeFriendClick(friend.username)}>{t("chat.friendsWindow.remove")}</Button>
+                            <Button variant='contained' color='error' onClick={() => handleFriendAction(removeFriend, user.username, friend.username, token)}>{t("chat.friendsWindow.remove")}</Button>
                         </Box>
                     </Box>
                 ))}
@@ -174,11 +129,11 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
                     <Typography variant='h4' sx={{ mb: '1em', textAlign: 'center' }}>{t("notifications.friendRequests")}</Typography>
                     {friendRequests.length > 0 ? (
                         friendRequests.map(request => (
-                            <Box key={request.sender.username} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '1em' }}>
+                            <Box key={request.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '1em' }}>
                                 <Typography variant='h6'>{request.sender.username}</Typography>
                                 <Box sx={{ display: 'flex', gap: '0.5em' }}>
-                                    <Button variant='contained' color='primary' onClick={() => acceptFriendRequestClick(request.id)}>{t("notifications.accept")}</Button>
-                                    <Button variant='contained' color='error' onClick={() => declineFriendRequestClick(request.id)}>{t("notifications.decline")}</Button>
+                                    <Button variant='contained' color='primary' onClick={() => handleFriendAction(acceptFriendRequest, request.id, token)}>{t("notifications.accept")}</Button>
+                                    <Button variant='contained' color='error' onClick={() => handleFriendAction(declineFriendRequest, request.id, token)}>{t("notifications.decline")}</Button>
                                 </Box>
                             </Box>
                         ))
@@ -189,7 +144,7 @@ const ChatFriendsWindow: React.FC<chatFriendsWindowProps> = ({ user, updateUser 
             </Dialog>
             {errorDialogOpen && <GenericErrorDialog open={errorDialogOpen} errorMessage={errorDialogMessage} onClose={closeErrorDialog} />}
         </Box>
-    )
-}
+    );
+};
 
 export default ChatFriendsWindow;

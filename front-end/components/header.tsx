@@ -1,48 +1,51 @@
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AppBar, Toolbar, Button, Box, Typography } from '@mui/material';
 import { useTranslation } from "next-i18next";
 import { User } from '@/types';
 import Language from './language/language';
 import {getUser} from "@services/api";
+import useSWR, {mutate} from "swr";
+import { useRouter } from 'next/router';
 
 const Header: React.FC = () => {
   const { t } = useTranslation();
-  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+  const router = useRouter();
 
-  useEffect(() => {
+  const fetcher = async () => {
+    // Fetch the user from the local storage
     const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
-    // Try to authenticate the user if there is a stored user
-    if (storedUser) {
-      try {
-        updateUser(storedUser);
-      } catch (error) {
-        localStorage.removeItem("loggedInUser");
-        setLoggedInUser(null);
-      }
+    if (!storedUser) {
+      return; // No user logged in
     }
-  }, []);
 
-  const updateUser = async ({ username, token } : { username: string, token: string }) => {
     try {
-      const user: User = await getUser(username, token);
+      // Check if the user is valid
+      const user: User = await getUser(storedUser.username, storedUser.token);
       if (user) {
-        setLoggedInUser(user);
+        // Logged in user is valid, update it
+        return user;
       } else {
-        localStorage.removeItem("loggedInUser");
-        setLoggedInUser(null);
+        // User not found, this shouldn't happen
+        throw new Error("User not found");
       }
     } catch (error) {
-        localStorage.removeItem("loggedInUser");
-        setLoggedInUser(null);
+      // Logged-in user is not/no longer valid
+      localStorage.removeItem("loggedInUser");
+      return null;
     }
-  }
+  };
+
+  const { data: loggedInUser, error, isLoading } = useSWR('user', fetcher);
 
   const handleLogout = () => {
     localStorage.removeItem("loggedInUser");
-    setLoggedInUser(null);
-    window.location.href = '/';
+    mutate('user', null);
+    if (router.pathname !== '/') {
+      router.push('/');
+    } else {
+      router.reload();
+    }
   };
 
   return (

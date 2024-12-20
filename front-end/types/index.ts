@@ -4,6 +4,7 @@ export type User ={
     password: string;
     friends?: User[];
     friendRequests?: FriendRequest[];
+    token?: string;
 }
 
 export interface Message {

@@ -22,7 +22,7 @@ class MessageWebSocket {
                 // Wait 0.1 seconds in case of multiple messages
                 setTimeout(() => {
                     // Prevent duplicate messages
-                    if (messages.length > 0 && messages[messages.length - 1].id === message.id) {
+                    if (messages && messages.length > 0 && messages[messages.length - 1].id === message.id) {
                         return;
                     }
 

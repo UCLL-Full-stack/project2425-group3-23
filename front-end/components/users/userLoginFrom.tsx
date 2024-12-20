@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import UserService from "@/services/userService"; 
 import { useRouter } from "next/router";
 import { Button, TextField, Typography, Box } from "@mui/material";
-import { useTranslation } from "next-i18next"; 
+import { useTranslation } from "next-i18next";
+import {mutate} from "swr";
 
 const UserLoginForm: React.FC = () => {
     const { t } = useTranslation();
@@ -11,26 +12,34 @@ const UserLoginForm: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const router = useRouter();
 
+    useEffect(() => {
+        const loggedInUser = localStorage.getItem("loggedInUser");
+        if (loggedInUser) {
+            router.push("/");  // Redirect to home if the user is logged in
+        }
+    }, []);
+
     const handleLogin = async () => {
-      try {
-          const user = { username, password };
-          const response = await UserService.loginUser(user);
+        try {
+            const user = { username, password };
+            const response = await UserService.loginUser(user);
 
-          if (!response.ok) {
-              const data = await response.json();
-              setErrorMessage(data.message || t('login.failed'));  
-              return;
-          }
+            if (!response.ok) {
+                const data = await response.json();
+                setErrorMessage(data.message || t('login.failed'));
+                return;
+            }
 
-          const data = await response.json();
-          localStorage.setItem("loggedInUser", JSON.stringify(data));
+            const data = await response.json();
+            localStorage.setItem("loggedInUser", JSON.stringify(data));
+            await mutate('user'); // Update the user data
 
-          router.push("/");
-      } catch (error) {
-          console.error("Login error:", error);
-          setErrorMessage(t('login.error')); 
-      }
-  };
+            router.push("/");
+        } catch (error) {
+            console.error("Login error:", error);
+            setErrorMessage(t('login.error'));
+        }
+    };
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" gap="1em" sx={
