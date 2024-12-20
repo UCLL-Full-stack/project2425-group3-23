@@ -66,7 +66,7 @@ export class User {
         }
 
         // Password requirements
-        if (user.password.length < 4) {
+        if (user.password.length < 8) {
             throw new Error('Password must be at least 8 characters long');
         }
         if (!/[a-z]/.test(user.password)) {
